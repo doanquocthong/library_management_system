@@ -34,7 +34,7 @@ public class User {
     private LocalDateTime created_date;
 
     @Column(name = "is_hide")
-    private Boolean is_hide;
+    private Boolean isHide;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "roleid")

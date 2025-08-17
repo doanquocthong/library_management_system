@@ -5,6 +5,7 @@ import com.example.library_management_service.Entity.Book;
 import com.example.library_management_service.Entity.Category;
 import com.example.library_management_service.Repository.BookRepository;
 import com.example.library_management_service.Repository.CategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class BookService {
     public BookService(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
     }
+
 
     // Lấy tất cả sách
     public List<BookDTO> getAllBooks() {

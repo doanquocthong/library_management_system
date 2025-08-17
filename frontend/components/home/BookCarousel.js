@@ -1,28 +1,62 @@
-"use client"; // Nếu bạn dùng Next.js 13+ (App Router) thì cần dòng này
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export function BookCarousel({ title }) {
   const [books, setBooks] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/books");
-        if (!res.ok) throw new Error("Failed to fetch books");
-        const data = await res.json();
-        
-        console.log("📚 API Response:", data); // Xuất JSON ra console
+        const res = await fetch(
+          "http://localhost:8080/api/books",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
+        );
 
-        setBooks(data); // Giả sử API trả về mảng sách
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          console.log("📚 API Response:", data);
+          setBooks(data);
+        } catch {
+          console.error("❌ API không trả JSON, nội dung:", text);
+          setError("Dữ liệu trả về không hợp lệ.");
+        }
       } catch (err) {
         console.error("❌ Lỗi khi fetch API:", err);
+        setError("Không thể kết nối tới máy chủ.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchBooks();
   }, []);
+
+  if (loading) {
+    return (
+      <section className="py-10 text-center">
+        <p>Đang tải sách...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-10 text-center text-red-500">
+        <p>{error}</p>
+      </section>
+    );
+  }
 
   return (
     <section className="py-10">
