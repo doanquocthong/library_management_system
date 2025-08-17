@@ -23,7 +23,7 @@ public class AuthService {
             User user = userOptional.get();
             System.out.println(user);
             System.out.println(user.getRole());
-            System.out.println(user.getRole().getRole_name());
+            System.out.println(user.getRole());
 
             if (user.getPassword().equals(loginRequest.getPassword())) {
                 return new UserRespone(user.getUsername(), user.getRole().getRole_name());
@@ -51,7 +51,7 @@ public class AuthService {
         user.setPassword(registerRequest.getPassword());
         user.setRole(role);              // 👉 gán Role object
         user.setCreated_date(LocalDateTime.now());
-        user.setIs_hide(false);
+        user.setIsHide(false);
         userRepository.save(user);
 
         return new UserRespone(user.getUsername(), user.getRole().getRole_name());

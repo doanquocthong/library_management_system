@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table(name = "borrow_detail")
@@ -22,5 +24,7 @@ public class BorrowDetail {
     @JsonBackReference
     private Book book;
 
-    private boolean is_approve;
+    private boolean is_approve = false;
+
+    private LocalDateTime date_borrow_book = LocalDateTime.now();
 }
