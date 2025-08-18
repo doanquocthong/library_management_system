@@ -17,6 +17,9 @@ public class UserDetail {
     private String fullname;
     private String contact;
 
+    @Column(name = "birth_date")
+    private String birthDate;
+
     @OneToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference
