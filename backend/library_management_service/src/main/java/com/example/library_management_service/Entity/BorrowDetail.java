@@ -24,7 +24,15 @@ public class BorrowDetail {
     @JsonBackReference
     private Book book;
 
-    private boolean is_approve = false;
+    public enum BorrowStatus {
+        PENDING, //Chờ phê duyệt
+        BORROWED, //Đã phê duyệt, đang mượn
+        RETURNED, //Đã trả
+        CANCELLED // Hủy
+    }
+    @JoinColumn(name = "status")
+    private BorrowStatus status = BorrowStatus.PENDING;
 
     private LocalDateTime date_borrow_book = LocalDateTime.now();
+    private LocalDateTime date_return_book = null;
 }
