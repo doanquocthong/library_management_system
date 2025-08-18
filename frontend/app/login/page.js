@@ -35,7 +35,7 @@ export default function LoginPage() {
         setUser(userInfo);
         
         // chuyển hướng dựa trên vai trò
-        if (role === 'admin') {
+        if (role === 'ADMIN') {
           router.push('/admin');
         } else {
           router.push('/');

@@ -35,6 +35,10 @@ public class BorrowDetailService {
             Book book = bookRepository.findById(borrowDetailDTO.getBookId())
                     .orElseThrow(() -> new RuntimeException("Book not found"));
             borrowDetail.setBook(book);
+
+            if(book.getQuantity() <= 0) {
+                throw new RuntimeException("Run out of book");
+            }
         }
 
         BorrowDetail saved = borrowDetailRepository.save(borrowDetail);
