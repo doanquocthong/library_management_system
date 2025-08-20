@@ -22,9 +22,8 @@ export default function HomePage() {
         <SearchBar onSearch={handleSearch} />
         <HeroBanner />
         <CategoryMenu />
-        <BookCarousel title="Sách nổi bật" searchQuery={searchQuery}/>
-        <BookCarousel title="Sách mới cập nhật" searchQuery={searchQuery}/>
-        <BookCarousel title="Sách đề xuất" searchQuery={searchQuery}/>
+        <BookCarousel title="Sách nổi bật" filterPopular={true} />
+        <BookCarousel title="Sách nổi bật" filterPopular={false} />
         <BlogPreview />
       </div>
       <Footer />

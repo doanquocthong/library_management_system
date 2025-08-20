@@ -58,7 +58,13 @@ public class BookService {
         Book savedBook = bookRepository.save(book);
         return convertToDTO(savedBook);
     }
-
+    // Lấy danh sách sách theo tên category
+    public List<BookDTO> getBooksByCategory(String categoryName) {
+        List<Book> books = bookRepository.findByCategory_CategoryName(categoryName);
+        return books.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
     // Chuyển Entity → DTO
     private BookDTO convertToDTO(Book book) {
         BookDTO dto = new BookDTO();
