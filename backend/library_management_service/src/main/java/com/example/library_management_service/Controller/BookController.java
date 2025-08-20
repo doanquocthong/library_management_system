@@ -30,4 +30,9 @@ public class BookController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    // Lấy sách theo category
+    @GetMapping("/category/{categoryName}")
+    public List<BookDTO> getBooksByCategory(@PathVariable String categoryName) {
+        return bookService.getBooksByCategory(categoryName);
+    }
 }

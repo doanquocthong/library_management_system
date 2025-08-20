@@ -2,45 +2,48 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-export function BookCarousel({ title }) {
+import { API_URL } from "../../config";
+export function BookCarousel({ title, filterPopular = false, category = null }) {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBooks = async () => {
+      setLoading(true);
       try {
-        const res = await fetch(
-          "http://localhost:8080/api/books",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "true",
-            },
-          }
-        );
-
-        const text = await res.text();
-        try {
-          const data = JSON.parse(text);
-          console.log("📚 API Response:", data);
-          setBooks(data);
-        } catch {
-          console.error("❌ API không trả JSON, nội dung:", text);
-          setError("Dữ liệu trả về không hợp lệ.");
+        let url = `${API_URL}/books`;
+        if (category) {
+          url = `${API_URL}/books/category/${encodeURIComponent(category)}`;
         }
+
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
+
+        const data = await res.json();
+        console.log("📚 API Response:", data);
+
+        // Lọc sách nếu filterPopular = true
+        const filtered = filterPopular
+          ? data.filter((book) => book.isPopular)
+          : data;
+
+        setBooks(filtered);
       } catch (err) {
         console.error("❌ Lỗi khi fetch API:", err);
-        setError("Không thể kết nối tới máy chủ.");
+        setError("Không thể kết nối tới máy chủ hoặc dữ liệu không hợp lệ.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchBooks();
-  }, []);
+  }, [filterPopular, category]); // fetch lại mỗi khi filterPopular hoặc category thay đổi
 
   if (loading) {
     return (
@@ -71,7 +74,7 @@ export function BookCarousel({ title }) {
             >
               <img
                 src={book.bookImage}
-                alt={book.title}
+                alt={book.bookName}
                 className="w-full h-32 object-cover rounded-md mb-2"
               />
               <div className="text-sm font-semibold text-gray-800 truncate">

@@ -26,7 +26,7 @@ public class AuthService {
             System.out.println(user.getRole());
 
             if (user.getPassword().equals(loginRequest.getPassword())) {
-                return new UserRespone(user.getUsername(), user.getRole().getRole_name());
+                return new UserRespone(user.getId(), user.getUsername(), user.getRole().getRole_name());
 
             }
         }
@@ -54,6 +54,6 @@ public class AuthService {
         user.setIsHide(false);
         userRepository.save(user);
 
-        return new UserRespone(user.getUsername(), user.getRole().getRole_name());
+        return new UserRespone(user.getId(), user.getUsername(), user.getRole().getRole_name());
     }
 }
