@@ -30,6 +30,7 @@ public class BorrowDetail {
         RETURNED, //Đã trả
         CANCELLED // Hủy
     }
+    @Enumerated(EnumType.STRING)
     @JoinColumn(name = "status")
     private BorrowStatus status = BorrowStatus.PENDING;
 

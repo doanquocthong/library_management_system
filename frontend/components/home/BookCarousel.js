@@ -2,45 +2,49 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { API_URL } from "../../config";
 
-export function BookCarousel({ title }) {
+export function BookCarousel({ title, filterPopular = false, category = "" }) {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBooks = async () => {
+      setLoading(true);
       try {
-        const res = await fetch(
-          "http://localhost:8080/api/books",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "true",
-            },
-          }
-        );
+        // Nếu category có, gọi API theo category, ngược lại lấy tất cả
+        const url = category
+          ? `${API_URL}/books/category/${encodeURIComponent(category)}`
+          : `${API_URL}/books`;
 
-        const text = await res.text();
-        try {
-          const data = JSON.parse(text);
-          console.log("📚 API Response:", data);
-          setBooks(data);
-        } catch {
-          console.error("❌ API không trả JSON, nội dung:", text);
-          setError("Dữ liệu trả về không hợp lệ.");
-        }
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
+
+        const data = await res.json();
+        console.log("📚 API Response:", data);
+
+        // Lọc sách nếu filterPopular = true
+        const filtered = filterPopular
+          ? data.filter((book) => book.isPopular)
+          : data;
+
+        setBooks(filtered);
       } catch (err) {
         console.error("❌ Lỗi khi fetch API:", err);
-        setError("Không thể kết nối tới máy chủ.");
+        setError("Không thể kết nối tới máy chủ hoặc dữ liệu không hợp lệ.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchBooks();
-  }, []);
+  }, [filterPopular, category]); // dependency array luôn có 2 phần tử cố định
 
   if (loading) {
     return (
@@ -71,7 +75,7 @@ export function BookCarousel({ title }) {
             >
               <img
                 src={book.bookImage}
-                alt={book.title}
+                alt={book.bookName}
                 className="w-full h-32 object-cover rounded-md mb-2"
               />
               <div className="text-sm font-semibold text-gray-800 truncate">

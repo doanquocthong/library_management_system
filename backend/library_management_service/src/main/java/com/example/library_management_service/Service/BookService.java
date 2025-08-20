@@ -20,6 +20,13 @@ public class BookService {
         this.bookRepository = bookRepository;
     }
 
+    // Lấy danh sách sách theo tên category
+    public List<BookDTO> getBooksByCategory(String categoryName) {
+        List<Book> books = bookRepository.findByCategory_CategoryName(categoryName);
+        return books.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     // Lấy tất cả sách
     public List<BookDTO> getAllBooks() {

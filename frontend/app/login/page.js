@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
-
+import { API_URL } from "../../config";
 export default function LoginPage() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -19,9 +19,12 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          "ngrok-skip-browser-warning": "true",
+        },
         body: JSON.stringify(form),
       });
 
@@ -29,8 +32,8 @@ export default function LoginPage() {
       
       if (data.role) {
         // lưu vào localStorage hoặc context
-        const { username , role} = data;
-        const userInfo = { username , role }; 
+        const {id, username , role} = data;
+        const userInfo = {id, username , role }; 
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
         
