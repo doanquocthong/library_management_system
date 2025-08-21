@@ -6,6 +6,8 @@ import { Footer } from '@/components/home/Footer';
 import { Star, BookOpen, Heart, Calendar, User, Tag } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { API_URL } from "../../../config";
+import BorrowForm from '@/components/BorrowForm'; // added import
+
 export default function BookDetailPage() {
   const params = useParams();
   const { user } = useAuth();
@@ -20,6 +22,9 @@ export default function BookDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // new state to control borrow form modal
+  const [borrowOpen, setBorrowOpen] = useState(false);
+
   useEffect(() => {
     if (!id) return;
     let mounted = true;
@@ -28,7 +33,14 @@ export default function BookDetailPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_URL}/books/${id}`);
+        const res = await fetch(`${API_URL}/books/${id}`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json', 
+          "ngrok-skip-browser-warning": "true",
+        },
+        // body: JSON.stringify(form),
+      });
         if (!res.ok) throw new Error(`Lỗi khi tải sách: ${res.status}`);
         const data = await res.json();
         console.log('📚 Book API response:', data);
@@ -54,43 +66,62 @@ export default function BookDetailPage() {
     return isNaN(n) ? `${p} đ` : `${n.toLocaleString('vi-VN')} đ`;
   };
 
-  const handleBorrow = async () => {
-  // Lấy userId từ localStorage nếu chưa có user context
-  const userId = user?.id || localStorage.getItem('userId');
+  // open modal instead of directly sending request
+  const handleBorrow = () => {
+    const userId = user?.id || localStorage.getItem('userId');
+    if (!userId) {
+      alert('Vui lòng đăng nhập để mượn sách!');
+      return;
+    }
+    if (!book?.id) {
+      alert('Không tìm thấy sách để mượn!');
+      return;
+    }
+    setBorrowOpen(true);
+  };
 
-  if (!userId) {
-    alert('Vui lòng đăng nhập để mượn sách!');
-    return;
-  }
+  // submit handler called from BorrowForm
+  const handleSubmitBorrow = async (formData) => {
+    const userId = user?.id || localStorage.getItem('userId');
+    if (!userId) {
+      alert('Vui lòng đăng nhập để mượn sách!');
+      return;
+    }
 
-  if (!book?.id) {
-    alert('Không tìm thấy sách để mượn!');
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_URL}/borrow-details`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        "ngrok-skip-browser-warning": "true",
-      },
-      body: JSON.stringify({
-        userId: userId,
+    try {
+      const payload = {
+        userId,
         bookId: book.id,
-      }),
-    });
+        fullName: formData.fullName,
+        phone: formData.phone,
+        address: formData.address,
+        email: formData.email,
+        dob: formData.dob,
+      };
 
-    if (!res.ok) throw new Error(`Lỗi khi gửi yêu cầu: ${res.status}`);
-    const data = await res.json();
-    console.log('📥 Borrow API response:', data);
-    alert('Đã gửi yêu cầu mượn sách!');
-  } catch (err) {
-    console.error('❌ Lỗi khi mượn sách:', err);
-    alert('Không thể mượn sách, vui lòng thử lại sau.');
-  }
-};
+      const res = await fetch(`${API_URL}/borrow-details`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify(payload),
+      });
 
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Lỗi khi gửi yêu cầu: ${res.status} ${text}`);
+      }
+
+      const data = await res.json();
+      console.log('📥 Borrow API response:', data);
+      alert('Đã gửi yêu cầu mượn sách!');
+      setBorrowOpen(false);
+    } catch (err) {
+      console.error('❌ Lỗi khi mượn sách:', err);
+      alert('Không thể mượn sách, vui lòng thử lại sau.');
+    }
+  };
 
   const handleSubmitReview = () => {
     if (!user) {
@@ -185,7 +216,7 @@ export default function BookDetailPage() {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">{book.bookName}</h1>
                   <p className="text-lg text-gray-600 mb-1">Tác giả: {book.author}</p>
                   <p className="text-sm text-gray-500">Mã sách: #{book.id}</p>
-                </div>
+</div>
 
                 <div className="text-right">
                   <div className="text-2xl font-semibold text-indigo-700">{formatPrice(book.price)}</div>
@@ -259,6 +290,22 @@ export default function BookDetailPage() {
       </div>
 
       <Footer />
+
+      {/* Borrow Form Modal */}
+      {borrowOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black opacity-30" aria-hidden="true"></div>
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto z-10">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Thông tin mượn sách</h2>
+            <BorrowForm
+              bookTitle={book?.bookName || ''}
+              isOpen={borrowOpen}
+              onClose={() => setBorrowOpen(false)}
+              onSubmit={handleSubmitBorrow}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

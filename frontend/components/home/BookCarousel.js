@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { API_URL } from "../../config";
-export function BookCarousel({ title, filterPopular = false, category = null }) {
+
+export function BookCarousel({ title, filterPopular = false, category = "" }) {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -12,10 +13,10 @@ export function BookCarousel({ title, filterPopular = false, category = null }) 
     const fetchBooks = async () => {
       setLoading(true);
       try {
-        let url = `${API_URL}/books`;
-        if (category) {
-          url = `${API_URL}/books/category/${encodeURIComponent(category)}`;
-        }
+        // Nếu category có, gọi API theo category, ngược lại lấy tất cả
+        const url = category
+          ? `${API_URL}/books/category/${encodeURIComponent(category)}`
+          : `${API_URL}/books`;
 
         const res = await fetch(url, {
           method: "GET",
@@ -43,7 +44,7 @@ export function BookCarousel({ title, filterPopular = false, category = null }) 
     };
 
     fetchBooks();
-  }, [filterPopular, category]); // fetch lại mỗi khi filterPopular hoặc category thay đổi
+  }, [filterPopular, category]); // dependency array luôn có 2 phần tử cố định
 
   if (loading) {
     return (
@@ -75,7 +76,7 @@ export function BookCarousel({ title, filterPopular = false, category = null }) 
               <img
                 src={book.bookImage}
                 alt={book.bookName}
-                className="w-full h-32 object-cover rounded-md mb-2"
+                className="w-full h-56 object-cover rounded-lg mb-2 shadow hover:scale-105 transition-transform"
               />
               <div className="text-sm font-semibold text-gray-800 truncate">
                 {book.bookName}

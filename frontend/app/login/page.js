@@ -21,7 +21,10 @@ export default function LoginPage() {
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          "ngrok-skip-browser-warning": "true",
+        },
         body: JSON.stringify(form),
       });
 
@@ -30,7 +33,7 @@ export default function LoginPage() {
       if (data.role) {
         // lưu vào localStorage hoặc context
         const {id, username , role} = data;
-        const userInfo = { id, username , role }; 
+        const userInfo = {id, username , role }; 
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
         

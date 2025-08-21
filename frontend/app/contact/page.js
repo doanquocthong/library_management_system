@@ -47,7 +47,7 @@ export default function ContactPage() {
             <div className="space-y-6 text-gray-700">
               <div>
                 <p className="font-semibold">ĐỊA CHỈ</p>
-                <p>Số 2, đường Võ Oanh (D3 cũ), P.25, Q. Bình Thạnh, TP. HCM</p>
+                <p>02 Võ Oanh, Thạnh Lộc, Mỹ Tây, Hồ Chí Minh, Việt Nam</p> 
               </div>
               <div>
                 <p className="font-semibold">E-MAIL</p>
@@ -114,7 +114,7 @@ export default function ContactPage() {
         {/* Google Maps */}
         <div className="w-full h-96 mt-10">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.193514111351!2d106.71326217573605!3d10.796640258814219!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528c57a8d7c2b%3A0x2d7a32e4b13d5f54!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBHaWFvIFRodeG7sWMgVMOgbSBI4buNYyBULlAuSENN!5e0!3m2!1svi!2s!4v1700000000000!5m2!1svi!2s"
+            src="https://www.google.com/maps?q=02+Vo+Oanh%2C+Thanh+Loc%2C+Ho+Chi+Minh%2C+Viet+Nam&output=embed"
             width="100%"
             height="100%"
             allowFullScreen=""
