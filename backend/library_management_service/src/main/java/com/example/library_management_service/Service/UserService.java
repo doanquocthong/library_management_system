@@ -22,16 +22,22 @@ public class UserService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+    public UserDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+
+        return convertToDTO(user);
+    }
 
     private UserDTO convertToDTO (User user) {
         UserDTO dto = new UserDTO();
         dto.setUserName(user.getUsername());
-        dto.setRole(user.getRole().getRole_name());
         dto.setMssv(user.getUserDetail().getMssv());
-        dto.setFullName(user.getUserDetail().getFullname());
+        dto.setFullname(user.getUserDetail().getFullname());
         dto.setAddress(user.getUserDetail().getAddress());
         dto.setContact(user.getUserDetail().getContact());
         dto.setCreatedDate(user.getCreated_date());
+        dto.setEmail(user.getUserDetail().getEmail());
         return dto;
     }
 }

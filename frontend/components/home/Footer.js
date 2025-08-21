@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Footer() {
     return (
       <footer
@@ -7,11 +9,13 @@ export function Footer() {
         {/* Lớp phủ tối mờ để dễ đọc chữ */}
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-0"></div>
   
-        <div className="relative z-10 max-w-6xl mx-auto">
+        <div className="relative max-w-5xl mx-auto text-center">
           {/* Logo và tiêu đề bên trái */}
           <div className="flex items-center gap-4 mb-6">
-            <img src="/images/logo-uth.png" alt="Logo UTH" className="w-32 h-auto rounded-lg" />
-            <h2 className="text-xl font-semibold text-white">Thư Viện UTH</h2>
+            <Link href="/" className="flex items-center gap-2">
+              <img src="/images/logo-uth.png" alt="Logo Thư Viện Sách" className="w-32 h-auto rounded-lg" />
+              <h2 className="text-xl font-semibold text-white">Thư Viện UTH</h2>
+            </Link>
           </div>
   
           {/* Nội dung phần mô tả */}
@@ -32,4 +36,3 @@ export function Footer() {
       </footer>
     );
   }
-  

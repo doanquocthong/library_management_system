@@ -17,8 +17,8 @@ public class UserDetail {
     private String fullname;
     private String contact;
 
-    @Column(name = "birth_date")
-    private String birthDate;
+    @Column(name = "email")
+    private String email;
 
     @OneToOne
     @JoinColumn(name = "user_id")

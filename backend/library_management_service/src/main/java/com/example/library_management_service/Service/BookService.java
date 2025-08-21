@@ -82,7 +82,7 @@ public class BookService {
         dto.setDescription(book.getDescription());
         dto.setPrice(String.valueOf(book.getPrice()));
         dto.setIsPopular(book.getIsPopular());
-
+        dto.setQuantity(book.getQuantity());
         // Lấy categoryName từ entity category
         if (book.getCategory() != null) {
             dto.setCategoryName(book.getCategory().getCategoryName());

@@ -12,4 +12,5 @@ public class BookDTO {
     private String price;
     private String categoryName;
     private Boolean isPopular;
+    private Integer Quantity;
 }
