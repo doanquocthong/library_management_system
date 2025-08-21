@@ -1,4 +1,65 @@
+
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { API_URL } from "../../config";
 export default function Sign_upPage() {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    username: '', password: '', confirm: '',
+    fullname: '', address: '', contact: '', email: '', day: '', month: '', year: '', mssv: ''
+  });
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!form.username || !form.password) {
+      setError('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.');
+      return;
+    }
+    if (form.password !== form.confirm) {
+      setError('Mật khẩu xác nhận chưa khớp.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          "ngrok-skip-browser-warning": "true",
+         },
+        body: JSON.stringify({
+          username: form.username,
+          password: form.password,
+          roleId: 1, // user theo thuvien.sql (1='user', 2='admin')
+          fullname: form.fullname,
+          address: form.address,
+          contact: form.contact,
+          email: form.email,
+          mssv: form.mssv,
+          birthDate: form.year && form.month && form.day ? `${form.year}-${String(form.month).padStart(2,'0')}-${String(form.day).padStart(2,'0')}` : undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.username) {
+        alert('Đăng ký thành công! Vui lòng đăng nhập.');
+        router.push('/login');
+      } else {
+        setError(typeof data === 'string' ? data : 'Đăng ký không thành công.');
+      }
+    } catch (err) {
+      setError('Không thể kết nối máy chủ.');
+    }
+  };
+
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
@@ -11,23 +72,36 @@ export default function Sign_upPage() {
         <h2 className="text-xl font-bold text-center text-purple-600 mb-6">
           Tạo mới tài khoản của bạn
         </h2>
-        <form className="space-y-4">
+        {error && <p className="text-red-500 text-sm mb-2 text-center">{error}</p>}
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <input
+            name="username"
+            value={form.username}
+            onChange={handleChange}
             type="text"
             placeholder="Tên đăng nhập"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           <input
+            name="password"
+            value={form.password}
+            onChange={handleChange}
             type="password"
             placeholder="Mật khẩu"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           <input
+            name="confirm"
+            value={form.confirm}
+            onChange={handleChange}
             type="password"
             placeholder="Xác nhận lại mật khẩu"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           <input
+            name="fullname"
+            value={form.fullname}
+            onChange={handleChange}
             type="text"
             placeholder="Họ và tên"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
@@ -35,6 +109,8 @@ export default function Sign_upPage() {
           <div className="flex gap-2">
             <select
               name="day"
+              value={form.day}
+              onChange={handleChange}
               className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               required
             >
@@ -45,6 +121,8 @@ export default function Sign_upPage() {
             </select>
             <select
               name="month"
+              value={form.month}
+              onChange={handleChange}
               className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               required
             >
@@ -55,6 +133,8 @@ export default function Sign_upPage() {
             </select>
             <select
               name="year"
+              value={form.year}
+              onChange={handleChange}
               className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               required
             >
@@ -70,18 +150,35 @@ export default function Sign_upPage() {
             </select>
           </div>
           <input
+            name="contact"
+            value={form.contact}
+            onChange={handleChange}
             type="tel"
             placeholder="Số điện thoại"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           <input
+            name="address"
+            value={form.address}
+            onChange={handleChange}
             type="text"
             placeholder="Địa chỉ"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
             type="email"
             placeholder="Email"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+          />
+          <input
+            name="mssv"
+            value={form.mssv}
+            onChange={handleChange}
+            type="text"
+            placeholder="MSSV (nếu có)"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
           <button
