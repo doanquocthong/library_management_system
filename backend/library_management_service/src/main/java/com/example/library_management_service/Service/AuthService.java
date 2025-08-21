@@ -5,6 +5,7 @@ import com.example.library_management_service.DTO.RegisterRequest;
 import com.example.library_management_service.DTO.UserRespone;
 import com.example.library_management_service.Entity.Role;
 import com.example.library_management_service.Entity.User;
+import com.example.library_management_service.Entity.UserDetail;
 import com.example.library_management_service.Repository.RoleRepository;
 import com.example.library_management_service.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,15 +44,23 @@ public class AuthService {
         }
 
         // Lấy role từ DB dựa theo roleId
-        Role role = roleRepository.findById(registerRequest.getRoleId())
+        Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
-
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setPassword(registerRequest.getPassword());
         user.setRole(role);              // 👉 gán Role object
         user.setCreated_date(LocalDateTime.now());
         user.setIsHide(false);
+
+        UserDetail detail = new UserDetail();
+        detail.setAddress(registerRequest.getAddress());
+        detail.setEmail(registerRequest.getEmail());
+        detail.setMssv(registerRequest.getMssv());
+        detail.setFullname(registerRequest.getFullname());
+        detail.setContact(registerRequest.getContact());
+        detail.setUser(user);
+        user.setUserDetail(detail);
         userRepository.save(user);
 
         return new UserRespone(user.getId(), user.getUsername(), user.getRole().getRole_name());

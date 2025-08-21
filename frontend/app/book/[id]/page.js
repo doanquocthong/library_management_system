@@ -79,50 +79,6 @@ export default function BookDetailPage() {
     }
     setBorrowOpen(true);
   };
-
-  // submit handler called from BorrowForm
-  const handleSubmitBorrow = async (formData) => {
-    const userId = user?.id || localStorage.getItem('userId');
-    if (!userId) {
-      alert('Vui lòng đăng nhập để mượn sách!');
-      return;
-    }
-
-    try {
-      const payload = {
-        userId,
-        bookId: book.id,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        address: formData.address,
-        email: formData.email,
-        dob: formData.dob,
-      };
-
-      const res = await fetch(`${API_URL}/borrow-details`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Lỗi khi gửi yêu cầu: ${res.status} ${text}`);
-      }
-
-      const data = await res.json();
-      console.log('📥 Borrow API response:', data);
-      alert('Đã gửi yêu cầu mượn sách!');
-      setBorrowOpen(false);
-    } catch (err) {
-      console.error('❌ Lỗi khi mượn sách:', err);
-      alert('Không thể mượn sách, vui lòng thử lại sau.');
-    }
-  };
-
   const handleSubmitReview = () => {
     if (!user) {
       alert('Vui lòng đăng nhập để đánh giá!');
@@ -264,9 +220,13 @@ export default function BookDetailPage() {
                       </span>
                     </p>
                   </div>
+                  <div>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Số lượng: {book.quantity}</span>
+                    </p>
+                  </div>
                 </div>
               </div>
-
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleBorrow}
@@ -298,10 +258,11 @@ export default function BookDetailPage() {
           <div className="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto z-10">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Thông tin mượn sách</h2>
             <BorrowForm
+              userId={user?.id || localStorage.getItem('userId')}
+              bookId={book?.id}
               bookTitle={book?.bookName || ''}
               isOpen={borrowOpen}
               onClose={() => setBorrowOpen(false)}
-              onSubmit={handleSubmitBorrow}
             />
           </div>
         </div>

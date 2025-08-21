@@ -8,4 +8,8 @@ public class BorrowDetailDTO {
     private Long id;
     private Long userId;
     private Long bookId;
+    private String fullName;
+    private Long contact;
+    private String address;
+    private String email;
 }

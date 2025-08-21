@@ -36,4 +36,13 @@ public class BorrowDetail {
 
     private LocalDateTime date_borrow_book = LocalDateTime.now();
     private LocalDateTime date_return_book = null;
+
+    @JoinColumn(name = "full_name")
+    private String fullName;
+    @JoinColumn(name = "contact")
+    private Long contact;
+    @JoinColumn(name = "address")
+    private String address;
+    @JoinColumn(name = "email")
+    private String email;
 }

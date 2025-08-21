@@ -7,7 +7,7 @@ export default function Sign_upPage() {
   const router = useRouter();
   const [form, setForm] = useState({
     username: '', password: '', confirm: '',
-    fullname: '', address: '', contact: '', email: '', day: '', month: '', year: '', mssv: ''
+    fullname: '', address: '', contact: '', email: '', mssv: ''
   });
   const [error, setError] = useState('');
 
@@ -44,7 +44,7 @@ export default function Sign_upPage() {
           contact: form.contact,
           email: form.email,
           mssv: form.mssv,
-          birthDate: form.year && form.month && form.day ? `${form.year}-${String(form.month).padStart(2,'0')}-${String(form.day).padStart(2,'0')}` : undefined,
+          // Không gửi birthDate
         }),
       });
 
@@ -65,7 +65,6 @@ export default function Sign_upPage() {
       className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
       style={{ backgroundImage: "url('/images/uth.jpg')" }}
     >
-      {/* Lớp phủ tối mờ */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0"></div>
 
       <div className="bg-white p-6 rounded-3xl shadow-md w-full max-w-sm z-10">
@@ -85,7 +84,7 @@ export default function Sign_upPage() {
           <input
             name="password"
             value={form.password}
-onChange={handleChange}
+            onChange={handleChange}
             type="password"
             placeholder="Mật khẩu"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
@@ -106,49 +105,6 @@ onChange={handleChange}
             placeholder="Họ và tên"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
-          <div className="flex gap-2">
-            <select
-              name="day"
-              value={form.day}
-              onChange={handleChange}
-              className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
-            >
-              <option value="">Ngày</option>
-              {[...Array(31)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>{i + 1}</option>
-              ))}
-            </select>
-            <select
-              name="month"
-              value={form.month}
-              onChange={handleChange}
-              className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
-            >
-              <option value="">Tháng</option>
-              {[...Array(12)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>{i + 1}</option>
-              ))}
-            </select>
-            <select
-              name="year"
-              value={form.year}
-              onChange={handleChange}
-              className="w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
-            >
-              <option value="">Năm</option>
-              {Array.from({ length: 70 }, (_, i) => {
-                const year = new Date().getFullYear() - i;
-                return (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
           <input
             name="contact"
             value={form.contact}
@@ -161,7 +117,7 @@ onChange={handleChange}
             name="address"
             value={form.address}
             onChange={handleChange}
-type="text"
+            type="text"
             placeholder="Địa chỉ"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
           />

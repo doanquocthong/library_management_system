@@ -1,5 +1,5 @@
 'use client';
-
+import Link from "next/link";
 import { useAuth } from '@/app/context/AuthContext';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -16,26 +16,28 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
-
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user]);
-
+  
   if (!user) return null;
 
   const menuItems = [
     { id: 'profile', label: 'Hồ sơ', icon: User, description: 'Thông tin tài khoản' },
     { id: 'history', label: 'Lịch sử thuê sách', icon: BookOpen, description: 'Sách đã thuê' },
   ];
-
   return (
+    
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+            <img
+              src="/images/logo-uth.png"
+              alt="Logo UTH"
+              className="h-24 w-auto"
+            />
+            <span className="text-2xl font-bold text-indigo-600">Thư Viện UTH</span>
+          </Link>
             <h1 className="text-2xl font-semibold text-gray-800">Tài khoản của tôi</h1>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Xin chào,</span>
@@ -56,7 +58,7 @@ export default function ProfilePage() {
                   <div className="flex items-center space-x-4">
                     <div className="relative">
                       <img
-                        src={user.avatar || '/images/default-avatar.png'}
+                        src={user.avatar || 'https://icons.veryicon.com/png/o/miscellaneous/standard/avatar-15.png'}
                         alt="avatar"
                         className="w-16 h-16 rounded-full object-cover border-2 border-orange-100"
                         key={user.avatar} // Force re-render when avatar changes
