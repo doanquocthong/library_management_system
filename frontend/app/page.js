@@ -21,9 +21,9 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SearchBar onSearch={handleSearch} />
         <HeroBanner />
-        <CategoryMenu/>
+        <CategoryMenu />
         <BookCarousel title="Sách nổi bật" filterPopular={true} />
-        <BookCarousel title="Tất cả sách" filterPopular={false} />
+        <BookCarousel title="Sách nổi bật" filterPopular={false} />
         <BlogPreview />
       </div>
       <Footer />

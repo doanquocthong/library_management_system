@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { API_URL } from "../../config";
-
-export function BookCarousel({ title, filterPopular = false, category = "" }) {
+export function BookCarousel({ title, filterPopular = false, category = null }) {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -13,10 +12,10 @@ export function BookCarousel({ title, filterPopular = false, category = "" }) {
     const fetchBooks = async () => {
       setLoading(true);
       try {
-        // Nếu category có, gọi API theo category, ngược lại lấy tất cả
-        const url = category
-          ? `${API_URL}/books/category/${encodeURIComponent(category)}`
-          : `${API_URL}/books`;
+        let url = `${API_URL}/books`;
+        if (category) {
+          url = `${API_URL}/books/category/${encodeURIComponent(category)}`;
+        }
 
         const res = await fetch(url, {
           method: "GET",
@@ -44,8 +43,7 @@ export function BookCarousel({ title, filterPopular = false, category = "" }) {
     };
 
     fetchBooks();
-  }, [filterPopular, category]); // dependency array luôn có 2 phần tử cố định
-
+  }, [filterPopular, category]); // fetch lại mỗi khi filterPopular hoặc category thay đổi
   if (loading) {
     return (
       <section className="py-10 text-center">

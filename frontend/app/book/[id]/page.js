@@ -28,6 +28,7 @@ export default function BookDetailPage() {
       setLoading(true);
       setError(null);
       try {
+<<<<<<< HEAD
         const res = await fetch(`${API_URL}/books/${id}`, {
         method: 'GET',
         headers: { 
@@ -36,6 +37,9 @@ export default function BookDetailPage() {
         },
         // body: JSON.stringify(form),
       });
+=======
+        const res = await fetch(`${API_URL}/books/${id}`);
+>>>>>>> 89523e8d4a5280e16ed7472b85ef4c64dd1c0705
         if (!res.ok) throw new Error(`Lỗi khi tải sách: ${res.status}`);
         const data = await res.json();
         console.log('📚 Book API response:', data);

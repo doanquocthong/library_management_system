@@ -47,6 +47,7 @@ export function Header() {
             <Link href="/" className="text-sm text-black px-3 py-1 rounded hover:bg-gray-200 hover:text-indigo-700 transition">
               Trang chủ
             </Link>
+            {/* <GenreMenu /> */}
             <Link href="/documents" className="text-sm text-black px-3 py-1 rounded hover:bg-gray-200 hover:text-indigo-700 transition">
               Tài liệu
             </Link>
