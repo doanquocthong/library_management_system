@@ -1,12 +1,12 @@
 'use client';
 import {HeroBanner} from '@/components/home/HeroBanner';
-import {CategoryMenu} from '@/components/home/CategoryMenu';
 import {BookCarousel} from '@/components/home/BookCarousel';
 import {BlogPreview} from '@/components/home/BlogPreview';
 import {Footer} from '@/components/home/Footer';
 import {Header} from '@/components/home/header';
 import SearchBar from '@/components/home/SearchBar';
 import { useState } from 'react';
+import { CategoryMenu } from '@/components/home/CategoryMenu';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');

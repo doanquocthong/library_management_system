@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from "../../config";
-
 export default function Sign_upPage() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -44,7 +43,6 @@ export default function Sign_upPage() {
           contact: form.contact,
           email: form.email,
           mssv: form.mssv,
-          // Không gửi birthDate
         }),
       });
 

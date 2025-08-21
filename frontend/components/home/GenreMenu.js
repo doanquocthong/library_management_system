@@ -8,12 +8,10 @@ export default function GenreMenu() {
   const menuRef = useRef();
 
   const genres = [
-    'Khoa học',
-    'Văn học',
-    'Lịch sử',
-    'Công nghệ',
-    'Tâm lý',
-    'Thiếu nhi',
+    'Khoa học viễn tưởng',
+    'Kiến thức - Học thuật',
+    'Phiêu lưu',
+    'Tâm Lý – Kỹ Năng Sống',
   ];
 
   // Tự động đóng menu khi click ra ngoài

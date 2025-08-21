@@ -45,7 +45,6 @@ export function BookCarousel({ title, filterPopular = false, category = "" }) {
 
     fetchBooks();
   }, [filterPopular, category]); // dependency array luôn có 2 phần tử cố định
-
   if (loading) {
     return (
       <section className="py-10 text-center">
