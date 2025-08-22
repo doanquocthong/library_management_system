@@ -6,12 +6,10 @@ import { AdminHeader } from '@/components/admin/AdminHeader';
 
 export default function AdminPage() {
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-indigo-100 to-indigo-200">
+    <div className="flex min-h-screen bg-gradient-to-br from-indigo-50 to-indigo-200">
       <Sidebar />
       <main className="flex-1 p-6 overflow-y-auto">
         <AdminHeader />
-        <Dashboard />
-        <Toolbar />
         <div className="mt-6">
           <BookList />
         </div>

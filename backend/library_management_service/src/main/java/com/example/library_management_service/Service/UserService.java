@@ -2,6 +2,7 @@ package com.example.library_management_service.Service;
 
 import com.example.library_management_service.DTO.UserDTO;
 import com.example.library_management_service.Entity.User;
+import com.example.library_management_service.Repository.BorrowDetailRepository;
 import com.example.library_management_service.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,10 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final BorrowDetailRepository borrowDetailRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BorrowDetailRepository borrowDetailRepository) {
+        this.borrowDetailRepository = borrowDetailRepository;
         this.userRepository = userRepository;
     }
 
@@ -28,6 +31,16 @@ public class UserService {
 
         return convertToDTO(user);
     }
+    public Boolean deleteUserById(Long id) {
+        if (!userRepository.existsById(id)) {
+            return false;
+        }
+        if (borrowDetailRepository.existsById(id)) {
+            throw new IllegalStateException("Không thể xóa user vì còn bản ghi mượn sách liên quan.");
+        }
+        userRepository.deleteById(id);
+        return true;
+    }
 
     private UserDTO convertToDTO (User user) {
         UserDTO dto = new UserDTO();
@@ -38,6 +51,8 @@ public class UserService {
         dto.setContact(user.getUserDetail().getContact());
         dto.setCreatedDate(user.getCreated_date());
         dto.setEmail(user.getUserDetail().getEmail());
+        dto.setRoleName(user.getRole().getRole_name());
+        dto.setUserId(user.getId());
         return dto;
     }
 }

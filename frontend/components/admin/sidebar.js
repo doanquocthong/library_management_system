@@ -15,9 +15,9 @@ export function Sidebar() {
       <nav className="flex-1 px-4 py-4 overflow-y-auto text-sm">
         <div className="text-gray-400 font-semibold mb-1">QUẢN LÝ CHÍNH</div>
         <ul className="space-y-2">
-          <li><Link href="/admin" className="flex items-center gap-2 p-2 rounded-lg hover:bg-indigo-100"><Layers className="w-4" /> Tổng quan</Link></li>
+          <li><Link href="/admin" className="flex items-center gap-2 p-2 rounded-lg hover:bg-indigo-100"><Layers className="w-4" />Quản lý mượn sách</Link></li>
           <li><Link href="/admin/user_management" className="flex items-center gap-2 p-2 rounded-lg hover:bg-indigo-100"><Users className="w-4" /> Quản lý người dùng</Link></li>
-          <li><Link href="#" className="flex items-center gap-2 p-2 rounded-lg hover:bg-indigo-100"><BookOpen className="w-4" /> Quản lý sách</Link></li>
+          <li><Link href="/admin/book_management" className="flex items-center gap-2 p-2 rounded-lg hover:bg-indigo-100"><BookOpen className="w-4" /> Quản lý sách</Link></li>
           {/* <li><Link href="#" className="flex items-center gap-2 p-2 rounded-lg hover:bg-indigo-100"><Users className="w-4" /> Thông tin sinh viên</Link></li>
           <li><Link href="#" className="flex items-center gap-2 p-2 rounded-lg hover:bg-indigo-100"><Bell className="w-4" /> Sách đã mượn</Link></li> */}
         </ul>

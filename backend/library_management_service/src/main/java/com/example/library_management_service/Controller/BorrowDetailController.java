@@ -38,9 +38,21 @@ public class BorrowDetailController {
         }
     }
 
+    //Lấy list tất cả đơn mượn sách
+    @GetMapping
+    public List<BorrowDetailResponseDTO> getAllBorrowDetails() {
+        return borrowDetailService.getAllBorrowDetais();
+    }
     //Lấy list sách đã mượn từ người dùng theo id người dùng
     @GetMapping("/{userId}")
     public List<BorrowDetailResponseDTO> getBorrowDetailsByUserId(@PathVariable Long userId) {
         return borrowDetailService.getBorrowDetailByID(userId);
     }
+
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<BorrowDetailResponseDTO> approveBorrowDetail(@PathVariable Long id) {
+        BorrowDetailResponseDTO dto = borrowDetailService.approveBorrowDetail(id);
+        return ResponseEntity.ok(dto);
+    }
+
 }

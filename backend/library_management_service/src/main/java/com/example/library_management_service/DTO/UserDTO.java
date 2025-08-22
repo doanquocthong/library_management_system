@@ -7,8 +7,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class UserDTO {
+    private Long userId;
     private String userName;
     private String mssv;
+    private String roleName;
     private String fullname;
     private String address;
     private String contact;

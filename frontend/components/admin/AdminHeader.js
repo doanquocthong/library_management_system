@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 
-export function AdminHeader({ title = 'Tổng quan hệ thống', subtitle = 'Quản lý và theo dõi hoạt động thư viện' }) {
+export function AdminHeader({ title = 'Quản trị hệ thống', subtitle = 'Quản lý và theo dõi hoạt động thư viện' }) {
   const { user, logout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();

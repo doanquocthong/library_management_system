@@ -75,6 +75,29 @@ public class BorrowDetailService {
                 .collect(Collectors.toList());
     }
 
+    public List<BorrowDetailResponseDTO> getAllBorrowDetais() {
+
+        List<BorrowDetail> borrowDetails = borrowDetailRepository.findAll();
+
+        // Convert sang ResponseDTO
+        return borrowDetails.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+    public BorrowDetailResponseDTO approveBorrowDetail(Long borrowDetailId) {
+        BorrowDetail borrowDetail = borrowDetailRepository.findById(borrowDetailId)
+                .orElseThrow(() -> new IllegalArgumentException("BorrowDetail not found"));
+
+        if (borrowDetail.getStatus() != BorrowDetail.BorrowStatus.PENDING) {
+            throw new IllegalStateException("Cannot approve, status is not PENDING");
+        }
+
+        borrowDetail.setStatus(BorrowDetail.BorrowStatus.BORROWED); // Chuyển trạng thái
+        borrowDetailRepository.save(borrowDetail);
+
+        return convertToResponseDTO(borrowDetail);
+    }
+
     public boolean deleteBorrowDetail(Long id) {
         if (!borrowDetailRepository.existsById(id)) {
             return false;
@@ -125,6 +148,7 @@ public class BorrowDetailService {
         dto.setAddress(borrowDetail.getAddress());
         dto.setEmail(borrowDetail.getEmail());
         dto.setBookImage(borrowDetail.getBook().getBookImage());
+        dto.setId(borrowDetail.getId());
         return dto;
     }
 

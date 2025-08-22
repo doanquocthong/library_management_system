@@ -32,6 +32,7 @@ public class BookService {
     public List<BookDTO> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
+                .filter(book -> book.getQuantity() > 0)
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

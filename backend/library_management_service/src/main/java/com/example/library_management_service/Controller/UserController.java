@@ -2,6 +2,7 @@ package com.example.library_management_service.Controller;
 
 import com.example.library_management_service.DTO.UserDTO;
 import com.example.library_management_service.Service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,4 +26,19 @@ public class UserController {
     public UserDTO getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            boolean deleted = userService.deleteUserById(id);
+            if (!deleted) {
+                return ResponseEntity.notFound().build(); // 404
+            }
+            return ResponseEntity.noContent().build(); // 204
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // 400 + message
+        }
+    }
+
+
 }
