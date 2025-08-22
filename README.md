@@ -49,12 +49,24 @@ library_management_system/
 - 📖 Xem thông tin chi tiết sách
 - ⭐ Xem sách nổi bật và đề xuất
 
+
+### Giao diện
+
 ### Quản trị viên
 
 - 👥 Quản lý người dùng
 - 📚 Quản lý sách (thêm, sửa, xóa, ẩn/hiện)
 - 📊 Dashboard thống kê
 - 🏷️ Phân loại sách theo danh mục
+<img width="1919" height="969" alt="Screenshot 2025-08-21 172441" src="https://github.com/user-attachments/assets/48a40ad7-f2be-483d-8800-8130739d4956" />
+<img width="1917" height="964" alt="Screenshot 2025-08-21 172432" src="https://github.com/user-attachments/assets/f1b7e41c-cadd-4a73-8b28-6777647689a3" />
+<img width="1919" height="971" alt="Screenshot 2025-08-21 172424" src="https://github.com/user-attachments/assets/c4130db6-83aa-4a6c-8dca-5d490c009f90" />
+<img width="1919" height="966" alt="Screenshot 2025-08-21 172415" src="https://github.com/user-attachments/assets/28fe99bc-bce4-4bf9-bfdc-1f5d16773696" />
+<img width="1919" height="961" alt="Screenshot 2025-08-21 172406" src="https://github.com/user-attachments/assets/1811ff7c-d154-4071-b519-c9807af0cc87" />
+<img width="1919" height="962" alt="Screenshot 2025-08-22 112347" src="https://github.com/user-attachments/assets/24564474-8626-4411-841c-27a58766d3a5" />
+<img width="1919" height="962" alt="Screenshot 2025-08-21 172525" src="https://github.com/user-attachments/assets/ae2df34a-e12b-42f9-adbf-6b46ae9506d8" />
+<img width="1919" height="967" alt="Screenshot 2025-08-21 172502" src="https://github.com/user-attachments/assets/9e40d4a3-b3ce-45c6-b0aa-6e25a9d2a2da" />
+<img width="1919" height="968" alt="Screenshot 2025-08-21 172451" src="https://github.com/user-attachments/assets/5384f9f1-adf8-4671-ab42-db383093f915" />
 
 ## 🚀 Cách chạy dự án
 
