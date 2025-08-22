@@ -8,57 +8,41 @@ export default function RentalHistory() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    // Demo data – bạn có thể thay bằng fetch API
-    setRentalData([
-      { 
-        id: 1, 
-        book: 'Lập trình C++ cơ bản', 
-        author: 'Nguyễn Văn A',
-        rentDate: '2025-01-15', 
-        returnDate: '2025-02-15',
-        status: 'returned',
-        image: '/images/book1.jpg'
-      },
-      { 
-        id: 2, 
-        book: 'JavaScript nâng cao', 
-        author: 'Trần Thị B',
-        rentDate: '2025-01-20', 
-        returnDate: '2025-02-20',
-        status: 'renting',
-        image: '/images/book2.jpg'
-      },
-      { 
-        id: 3, 
-        book: 'React.js từ cơ bản đến nâng cao', 
-        author: 'Lê Văn C',
-        rentDate: '2024-12-10', 
-        returnDate: '2025-01-10',
-        status: 'overdue',
-        image: '/images/book3.jpg'
-      },
-    ]);
+    const fetchData = async () => {
+      try {
+        const res = await fetch('http://localhost:8080/api/borrow-details/1');
+        if (!res.ok) throw new Error('Fetch failed');
+        const data = await res.json();
+        setRentalData(Array.isArray(data) ? data : [data]); // phòng trường hợp API trả 1 object
+      } catch (err) {
+        console.error('Error fetching rental history:', err);
+      }
+    };
+    fetchData();
   }, []);
 
   const getStatusInfo = (status) => {
     switch (status) {
-      case 'returned':
+      case 'RETURNED':
         return { label: 'Đã trả', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle };
-      case 'renting':
-        return { label: 'Đang thuê', color: 'text-blue-600', bg: 'bg-blue-50', icon: Clock };
-      case 'overdue':
+      case 'BORROWED':
+        return { label: 'Đang mượn', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle };
+      case 'PENDING':
+        return { label: 'Chờ phê duyệt', color: 'text-blue-600', bg: 'bg-blue-50', icon: Clock };
+      case 'OVERDUE':
         return { label: 'Quá hạn', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle };
       default:
-        return { label: 'Không xác định', color: 'text-gray-600', bg: 'bg-gray-50', icon: AlertCircle };
+        return { label: status, color: 'text-gray-600', bg: 'bg-gray-50', icon: AlertCircle };
     }
   };
 
   const filteredData = rentalData.filter(item => {
     if (filter === 'all') return true;
-    return item.status === filter;
+    return item.status === filter.toUpperCase();
   });
 
   const formatDate = (dateString) => {
+    if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('vi-VN');
   };
 
@@ -68,9 +52,9 @@ export default function RentalHistory() {
       <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
         {[
           { key: 'all', label: 'Tất cả', count: rentalData.length },
-          { key: 'renting', label: 'Đang thuê', count: rentalData.filter(item => item.status === 'renting').length },
-          { key: 'returned', label: 'Đã trả', count: rentalData.filter(item => item.status === 'returned').length },
-          { key: 'overdue', label: 'Quá hạn', count: rentalData.filter(item => item.status === 'overdue').length },
+          { key: 'PENDING', label: 'Chờ phê duyệt', count: rentalData.filter(item => item.status === 'PENDING').length },
+          { key: 'BORROWED', label: 'Đang mượn', count: rentalData.filter(item => item.status === 'BORROWED').length },
+          { key: 'RETURNED', label: 'Đã trả', count: rentalData.filter(item => item.status === 'RETURNED').length },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -95,49 +79,52 @@ export default function RentalHistory() {
           <div className="text-center py-12">
             <BookOpen size={48} className="mx-auto text-gray-300 mb-4" />
             <h3 className="text-lg font-medium text-gray-600 mb-2">
-              {filter === 'all' ? 'Chưa có lịch sử thuê sách' : 'Không có sách nào'}
+              {filter === 'all' ? 'Chưa có lịch sử mượn sách' : 'Không có sách nào'}
             </h3>
             <p className="text-gray-500">
               {filter === 'all' 
-                ? 'Bạn chưa thuê sách nào từ thư viện' 
-                : `Không có sách nào trong danh mục "${filter === 'renting' ? 'Đang thuê' : filter === 'returned' ? 'Đã trả' : 'Quá hạn'}"`
+                ? 'Bạn chưa mượn sách nào từ thư viện' 
+                : `Không có sách nào trong danh mục "${filter}"`
               }
             </p>
           </div>
         ) : (
-          filteredData.map((rental) => {
+          filteredData.map((rental, idx) => {
             const statusInfo = getStatusInfo(rental.status);
             const StatusIcon = statusInfo.icon;
             
             return (
-              <div key={rental.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+              <div key={idx} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start space-x-4">
                   {/* Book Image */}
                   <div className="flex-shrink-0">
                     <img
-                      src={rental.image || '/images/default-book.jpg'}
-                      alt={rental.book}
+                      src={rental.bookImage || '/images/default-book.jpg'}
+                      alt={rental.bookTitle}
                       className="w-16 h-20 object-cover rounded border"
                     />
                   </div>
 
-                  {/* Book Info */}
+                  {/* Borrow Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                          {rental.book}
+                          Người mượn: {rental.fullName}
                         </h3>
-                        <p className="text-sm text-gray-500 mb-2">Tác giả: {rental.author}</p>
+                        <p className="text-sm text-gray-500 mb-1">Email: {rental.email}</p>
+                        <p className="text-sm text-gray-700 font-medium">
+                          Sách: {rental.bookTitle} - {rental.bookAuthor}
+                        </p>
                         
-                        <div className="flex items-center space-x-6 text-sm text-gray-600">
+                        <div className="flex items-center space-x-6 text-sm text-gray-600 mt-2">
                           <div className="flex items-center space-x-1">
                             <Calendar size={14} />
-                            <span>Thuê: {formatDate(rental.rentDate)}</span>
+                            <span>Mượn: {formatDate(rental.dateBorrowBook)}</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Calendar size={14} />
-                            <span>Trả: {formatDate(rental.returnDate)}</span>
+                            <span>Trả: {formatDate(rental.dateReturnBook)}</span>
                           </div>
                         </div>
                       </div>
@@ -151,35 +138,12 @@ export default function RentalHistory() {
                           </span>
                         </div>
                         
-                        <button className="flex items-center space-x-1 text-orange-600 hover:text-orange-700 text-sm font-medium">
+                        {/* <button className="flex items-center space-x-1 text-orange-600 hover:text-orange-700 text-sm font-medium">
                           <Eye size={14} />
                           <span>Chi tiết</span>
-                        </button>
+                        </button> */}
                       </div>
                     </div>
-
-                    {/* Action Buttons */}
-                    {rental.status === 'renting' && (
-                      <div className="flex items-center space-x-3 mt-4 pt-4 border-t border-gray-100">
-                        <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition text-sm">
-                          Gia hạn
-                        </button>
-                        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                          Trả sách
-                        </button>
-                      </div>
-                    )}
-
-                    {rental.status === 'overdue' && (
-                      <div className="flex items-center space-x-3 mt-4 pt-4 border-t border-gray-100">
-                        <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm">
-                          Trả sách ngay
-                        </button>
-                        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
-                          Liên hệ thủ thư
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -187,37 +151,6 @@ export default function RentalHistory() {
           })
         )}
       </div>
-
-      {/* Summary Stats */}
-      {rentalData.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Thống kê</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">{rentalData.length}</div>
-              <div className="text-sm text-gray-600">Tổng số sách đã thuê</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {rentalData.filter(item => item.status === 'renting').length}
-              </div>
-              <div className="text-sm text-gray-600">Đang thuê</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {rentalData.filter(item => item.status === 'returned').length}
-              </div>
-              <div className="text-sm text-gray-600">Đã trả</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {rentalData.filter(item => item.status === 'overdue').length}
-              </div>
-              <div className="text-sm text-gray-600">Quá hạn</div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

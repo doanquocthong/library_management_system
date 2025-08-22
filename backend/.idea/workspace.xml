@@ -47,11 +47,7 @@
     "project.structure.side.proportion": "0.0",
     "settings.editor.selected.configurable": "reference.settings.project.maven.runner"
   }
-<<<<<<< HEAD
 }]]></component>
-=======
-}</component>
->>>>>>> 89523e8d4a5280e16ed7472b85ef4c64dd1c0705
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="backend" />

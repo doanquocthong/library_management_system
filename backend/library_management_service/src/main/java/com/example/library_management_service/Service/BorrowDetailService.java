@@ -1,12 +1,14 @@
 package com.example.library_management_service.Service;
 
 import com.example.library_management_service.DTO.BorrowDetailDTO;
+import com.example.library_management_service.DTO.BorrowDetailResponseDTO;
 import com.example.library_management_service.Entity.Book;
 import com.example.library_management_service.Entity.BorrowDetail;
 import com.example.library_management_service.Entity.User;
 import com.example.library_management_service.Repository.BookRepository;
 import com.example.library_management_service.Repository.BorrowDetailRepository;
 import com.example.library_management_service.Repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,7 +61,7 @@ public class BorrowDetailService {
         BorrowDetail saved = borrowDetailRepository.save(borrowDetail);
         return convertToDTO(saved);
     }
-    public List<BorrowDetailDTO> getBorrowDetailByID(Long userId) {
+    public List<BorrowDetailResponseDTO> getBorrowDetailByID(Long userId) {
         // Kiểm tra user tồn tại
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -67,9 +69,9 @@ public class BorrowDetailService {
         // Lấy danh sách BorrowDetail theo userId
         List<BorrowDetail> borrowDetails = borrowDetailRepository.findByUserId(userId);
 
-        // Convert sang DTO
+        // Convert sang ResponseDTO
         return borrowDetails.stream()
-                .map(this::convertToDTO)
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -99,4 +101,31 @@ public class BorrowDetailService {
         dto.setAddress(borrowDetail.getAddress());
         return dto;
     }
+    private BorrowDetailResponseDTO convertToResponseDTO(BorrowDetail borrowDetail) {
+        BorrowDetailResponseDTO dto = new BorrowDetailResponseDTO();
+
+        // User
+        if (borrowDetail.getUser() != null) {
+            dto.setUserName(borrowDetail.getUser().getUsername());
+            dto.setUserEmail(borrowDetail.getUser().getUserDetail().getEmail());
+            dto.setUserAddress(borrowDetail.getUser().getUserDetail().getAddress());
+        }
+
+        // Book
+        if (borrowDetail.getBook() != null) {
+            dto.setBookTitle(borrowDetail.getBook().getBookName());
+            dto.setBookAuthor(borrowDetail.getBook().getAuthor());
+        }
+
+        dto.setStatus(borrowDetail.getStatus().name());
+        dto.setDateBorrowBook(borrowDetail.getDate_borrow_book());
+        dto.setDateReturnBook(borrowDetail.getDate_return_book());
+        dto.setFullName(borrowDetail.getFullName());
+        dto.setContact(borrowDetail.getContact());
+        dto.setAddress(borrowDetail.getAddress());
+        dto.setEmail(borrowDetail.getEmail());
+        dto.setBookImage(borrowDetail.getBook().getBookImage());
+        return dto;
+    }
+
 }

@@ -1,11 +1,16 @@
 package com.example.library_management_service.Controller;
 
 import com.example.library_management_service.DTO.BorrowDetailDTO;
+import com.example.library_management_service.DTO.BorrowDetailResponseDTO;
+import com.example.library_management_service.Entity.BorrowDetail;
 import com.example.library_management_service.Service.BorrowDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/borrow-details")
@@ -33,4 +38,9 @@ public class BorrowDetailController {
         }
     }
 
+    //Lấy list sách đã mượn từ người dùng theo id người dùng
+    @GetMapping("/{userId}")
+    public List<BorrowDetailResponseDTO> getBorrowDetailsByUserId(@PathVariable Long userId) {
+        return borrowDetailService.getBorrowDetailByID(userId);
+    }
 }

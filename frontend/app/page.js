@@ -23,7 +23,7 @@ export default function HomePage() {
         <HeroBanner />
         <CategoryMenu />
         <BookCarousel title="Sách nổi bật" filterPopular={true} />
-        <BookCarousel title="Sách nổi bật" filterPopular={false} />
+        <BookCarousel title="Tất cả sách" filterPopular={false} />
         <BlogPreview />
       </div>
       <Footer />
