@@ -2,15 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import { BookOpen, Calendar, Clock, CheckCircle, AlertCircle, Eye } from 'lucide-react';
-
+import { API_URL } from "../../config";
 export default function RentalHistory() {
   const [rentalData, setRentalData] = useState([]);
   const [filter, setFilter] = useState('all');
+  const user = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+  let userId = null;
 
+  if (user) {
+    const parsedUser = JSON.parse(user);
+    userId = parsedUser.id;
+    console.log("userId:", userId);
+  }
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/borrow-details/1');
+        const res = await fetch(`${API_URL}/borrow-details/${userId}`, {
+          method: 'GET',
+                headers: { 
+                  'Content-Type': 'application/json', 
+                  "ngrok-skip-browser-warning": "true",
+                },
+        });
         if (!res.ok) throw new Error('Fetch failed');
         const data = await res.json();
         setRentalData(Array.isArray(data) ? data : [data]); // phòng trường hợp API trả 1 object
