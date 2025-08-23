@@ -34,7 +34,7 @@ public class BorrowDetail {
     @JoinColumn(name = "status")
     private BorrowStatus status = BorrowStatus.PENDING;
 
-    private LocalDateTime date_borrow_book = LocalDateTime.now();
+    private LocalDateTime date_borrow_book = null;
     private LocalDateTime date_return_book = null;
 
     @JoinColumn(name = "full_name")

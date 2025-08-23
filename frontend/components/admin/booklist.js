@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Eye, Edit, Trash } from 'lucide-react';
 import { API_URL } from "../../config";
 
 export function BookList() {
   const [borrowDetails, setBorrowDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PENDING, BORROWED, RETURNED
+  const [filterDate, setFilterDate] = useState('ALL'); // ALL, TODAY, YESTERDAY, CUSTOM
+  const [customDate, setCustomDate] = useState('');
 
   useEffect(() => {
     async function fetchBorrowDetails() {
@@ -20,7 +21,11 @@ export function BookList() {
           },
         });
         if (!res.ok) throw new Error('Failed to fetch data');
-        const data = await res.json();
+        let data = await res.json();
+
+        // Sắp xếp theo ngày mượn mới nhất trước
+        data.sort((a, b) => new Date(b.dateBorrowBook) - new Date(a.dateBorrowBook));
+
         setBorrowDetails(data);
       } catch (error) {
         console.error('Error fetching borrow details:', error);
@@ -46,7 +51,6 @@ export function BookList() {
     }
   };
 
-  // Hàm duyệt mượn (PENDING -> BORROWED)
   const handleApprove = async (id) => {
     try {
       const res = await fetch(`${API_URL}/borrow-details/${id}/approve`, {
@@ -66,40 +70,93 @@ export function BookList() {
 
   if (loading) return <div>Đang tải dữ liệu...</div>;
 
-  // Lọc danh sách dựa trên filterStatus
-  const filteredData = borrowDetails.filter(item =>
-    filterStatus === 'ALL' ? true : item.status === filterStatus
-  );
+  const formatDate = (dateString) => {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  };
+
+  const filterByDate = (itemDate) => {
+    if (!itemDate) return false;
+    const d = new Date(itemDate);
+    const today = new Date();
+    const yest = new Date();
+    yest.setDate(today.getDate() - 1);
+
+    const onlyDate = (dt) => dt.toISOString().split("T")[0]; // yyyy-mm-dd
+
+    switch (filterDate) {
+      case "TODAY":
+        return onlyDate(d) === onlyDate(today);
+      case "YESTERDAY":
+        return onlyDate(d) === onlyDate(yest);
+      case "CUSTOM":
+        return customDate && onlyDate(d) === customDate;
+      default:
+        return true;
+    }
+  };
+
+  const filteredData = borrowDetails.filter(item => {
+    const statusOk = filterStatus === 'ALL' ? true : item.status === filterStatus;
+    const dateOk = filterByDate(item.dateBorrowBook);
+    return statusOk && dateOk;
+  });
 
   return (
     <div className="bg-white rounded-xl shadow p-6">
-      <div className="flex space-x-4 mb-4">
-        <button
-          onClick={() => setFilterStatus('ALL')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold ${filterStatus === 'ALL' ? 'bg-white shadow border' : 'bg-transparent text-gray-500 hover:underline'}`}
-        >
-          Tất cả
-        </button>
-        <button
-          onClick={() => setFilterStatus('PENDING')}
-          className={`px-4 py-2 rounded-lg text-sm ${filterStatus === 'PENDING' ? 'bg-white shadow border font-semibold' : 'bg-transparent text-gray-500 hover:underline'}`}
-        >
-          Sách chờ duyệt
-        </button>
-        <button
-          onClick={() => setFilterStatus('BORROWED')}
-          className={`px-4 py-2 rounded-lg text-sm ${filterStatus === 'BORROWED' ? 'bg-white shadow border font-semibold' : 'bg-transparent text-gray-500 hover:underline'}`}
-        >
-          Sách đã duyệt (đang mượn)
-        </button>
-        <button
-          onClick={() => setFilterStatus('RETURNED')}
-          className={`px-4 py-2 rounded-lg text-sm ${filterStatus === 'RETURNED' ? 'bg-white shadow border font-semibold' : 'bg-transparent text-gray-500 hover:underline'}`}
-        >
-          Sách đã trả
-        </button>
+      {/* Thanh lọc trạng thái + lọc ngày */}
+      <div className="flex items-center justify-between mb-6">
+        {/* Lọc trạng thái (trái) */}
+        <div className="flex space-x-3">
+          {['ALL','PENDING','BORROWED','RETURNED'].map(status => (
+            <button
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
+                filterStatus === status 
+                ? 'bg-white shadow border' 
+                : 'bg-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {status === 'ALL' ? 'Tất cả' : 
+              status === 'PENDING' ? 'Chờ duyệt' : 
+              status === 'BORROWED' ? 'Đang mượn' : 
+              'Đã trả'}
+            </button>
+          ))}
+        </div>
+
+        {/* Lọc ngày (phải) */}
+        <div className="flex space-x-3 items-center">
+          <button
+            onClick={() => setFilterDate("TODAY")}
+            className={`px-3 py-2 rounded-lg text-sm font-medium ${filterDate === "TODAY" ? "bg-white shadow border" : "text-gray-500 hover:text-gray-700"}`}
+          >
+            Hôm nay
+          </button>
+          <button
+            onClick={() => setFilterDate("YESTERDAY")}
+            className={`px-3 py-2 rounded-lg text-sm font-medium ${filterDate === "YESTERDAY" ? "bg-white shadow border" : "text-gray-500 hover:text-gray-700"}`}
+          >
+            Hôm qua
+          </button>
+          <input
+            type="date"
+            value={customDate}
+            onChange={(e) => {
+              setCustomDate(e.target.value);
+              setFilterDate("CUSTOM");
+            }}
+            className="border px-2 py-1 rounded text-sm"
+          />
+        </div>
       </div>
 
+      {/* Bảng danh sách */}
       <div className="overflow-auto">
         <table className="min-w-full text-sm text-left">
           <thead>
@@ -110,13 +167,15 @@ export function BookList() {
               <th className="py-2 px-3">Người mượn</th>
               <th className="py-2 px-3">Email</th>
               <th className="py-2 px-3">Địa chỉ</th>
+              <th className="py-2 px-3">Ngày mượn</th>
+              <th className="py-2 px-3">Ngày trả</th>
               <th className="py-2 px-3">Trạng thái</th>
               <th className="py-2 px-3">Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {filteredData.map((item) => (
-              <tr key={item.id} className="border-b">
+              <tr key={item.id} className="border-b hover:bg-gray-50">
                 <td className="py-2 px-3">
                   {item.bookImage && (
                     <img src={item.bookImage} alt={item.bookTitle} className="w-16 h-20 object-cover rounded" />
@@ -127,6 +186,8 @@ export function BookList() {
                 <td className="py-2 px-3">{item.fullName || item.userName}</td>
                 <td className="py-2 px-3">{item.email || item.userEmail}</td>
                 <td className="py-2 px-3">{item.address || item.userAddress}</td>
+                <td className="py-2 px-3">{formatDate(item.dateBorrowBook)}</td>
+                <td className="py-2 px-3">{formatDate(item.dateReturnBook)}</td>
                 <td className="py-2 px-3">
                   <span className={`${getStatusColor(item.status)} px-2 py-1 rounded text-xs`}>
                     {item.status}

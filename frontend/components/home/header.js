@@ -50,12 +50,7 @@ export function Header() {
         {/* Menu + Auth */}
         <div className="flex items-center gap-10">
           <nav className="flex items-center gap-6 text-sm font-medium text-gray-700">
-            <Link
-              href="/documents"
-              className="text-sm text-black px-3 py-1 rounded hover:bg-gray-200 hover:text-indigo-700 transition"
-            >
-              Tài liệu
-            </Link>
+            
             <Link
               href="/introduce"
               className="text-sm text-black px-3 py-1 rounded hover:bg-gray-200 hover:text-indigo-700 transition"

@@ -11,6 +11,7 @@ import com.example.library_management_service.Repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,6 +60,7 @@ public class BorrowDetailService {
         mapContactInfo(borrowDetailDTO, borrowDetail);
 
         BorrowDetail saved = borrowDetailRepository.save(borrowDetail);
+        saved.setDate_borrow_book(LocalDateTime.now());
         return convertToDTO(saved);
     }
     public List<BorrowDetailResponseDTO> getBorrowDetailByID(Long userId) {
@@ -75,7 +77,7 @@ public class BorrowDetailService {
                 .collect(Collectors.toList());
     }
 
-    public List<BorrowDetailResponseDTO> getAllBorrowDetais() {
+    public List<BorrowDetailResponseDTO> getAllBorrowDetails() {
 
         List<BorrowDetail> borrowDetails = borrowDetailRepository.findAll();
 
@@ -93,6 +95,21 @@ public class BorrowDetailService {
         }
 
         borrowDetail.setStatus(BorrowDetail.BorrowStatus.BORROWED); // Chuyển trạng thái
+        borrowDetailRepository.save(borrowDetail);
+
+        return convertToResponseDTO(borrowDetail);
+    }
+
+    public BorrowDetailResponseDTO returnBorrowDetail(Long borrowDetailId) {
+        BorrowDetail borrowDetail = borrowDetailRepository.findById(borrowDetailId)
+                .orElseThrow(() -> new IllegalArgumentException("BorrowDetail not found"));
+
+        if (borrowDetail.getStatus() != BorrowDetail.BorrowStatus.BORROWED) {
+            throw new IllegalStateException("Cannot return, status is not BORROWED");
+        }
+
+        borrowDetail.setStatus(BorrowDetail.BorrowStatus.RETURNED); // Chuyển trạng thái
+        borrowDetail.setDate_return_book(LocalDateTime.now());
         borrowDetailRepository.save(borrowDetail);
 
         return convertToResponseDTO(borrowDetail);

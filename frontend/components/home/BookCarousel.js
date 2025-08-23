@@ -29,12 +29,15 @@ export function BookCarousel({ title, filterPopular = false, category = "" }) {
         const data = await res.json();
         console.log("📚 API Response:", data);
 
-        // Lọc sách nếu filterPopular = true
-        const filtered = filterPopular
-          ? data.filter((book) => book.isPopular)
-          : data;
+        // Bước 1: lọc bỏ sách bị ẩn
+        let visibleBooks = data.filter((book) => !book.isHide);
 
-        setBooks(filtered);
+        // Bước 2: nếu filterPopular = true thì chỉ lấy sách nổi bật
+        if (filterPopular) {
+          visibleBooks = visibleBooks.filter((book) => book.isPopular);
+        }
+
+        setBooks(visibleBooks);
       } catch (err) {
         console.error("❌ Lỗi khi fetch API:", err);
         setError("Không thể kết nối tới máy chủ hoặc dữ liệu không hợp lệ.");
@@ -44,7 +47,8 @@ export function BookCarousel({ title, filterPopular = false, category = "" }) {
     };
 
     fetchBooks();
-  }, [filterPopular, category]); // dependency array luôn có 2 phần tử cố định
+  }, [filterPopular, category]); // dependency array
+
   if (loading) {
     return (
       <section className="py-10 text-center">

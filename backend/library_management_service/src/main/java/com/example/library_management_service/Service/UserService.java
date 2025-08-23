@@ -7,6 +7,7 @@ import com.example.library_management_service.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +21,7 @@ public class UserService {
     }
 
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAllByIsHideFalse()
+        return userRepository.findAll()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -31,15 +32,23 @@ public class UserService {
 
         return convertToDTO(user);
     }
-    public Boolean deleteUserById(Long id) {
-        if (!userRepository.existsById(id)) {
-            return false;
-        }
-        if (borrowDetailRepository.existsById(id)) {
-            throw new IllegalStateException("Không thể xóa user vì còn bản ghi mượn sách liên quan.");
-        }
-        userRepository.deleteById(id);
-        return true;
+    public boolean hideUserById(Long id) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setIsHide(true);   // set flag
+                    userRepository.save(user);
+                    return true;
+                })
+                .orElse(false);  // nếu không tìm thấy thì false
+    }
+    public boolean unhideUserById(Long id) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setIsHide(false);  // bật lại user
+                    userRepository.save(user);
+                    return true;
+                })
+                .orElse(false);  // không tìm thấy thì trả về false
     }
 
     private UserDTO convertToDTO (User user) {
@@ -53,6 +62,7 @@ public class UserService {
         dto.setEmail(user.getUserDetail().getEmail());
         dto.setRoleName(user.getRole().getRole_name());
         dto.setUserId(user.getId());
+        dto.setIsHide(user.getIsHide());
         return dto;
     }
 }

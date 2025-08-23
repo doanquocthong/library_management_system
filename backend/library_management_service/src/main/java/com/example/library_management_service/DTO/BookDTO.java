@@ -13,4 +13,6 @@ public class BookDTO {
     private String categoryName;
     private Boolean isPopular;
     private Integer Quantity;
+    private Boolean isHide;
+    private Long categoryId;
 }

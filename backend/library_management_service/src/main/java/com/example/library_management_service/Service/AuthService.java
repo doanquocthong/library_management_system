@@ -22,18 +22,24 @@ public class AuthService {
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            System.out.println(user);
-            System.out.println(user.getRole());
-            System.out.println(user.getRole());
 
+            // Nếu user bị block thì không cho login
+            if (Boolean.TRUE.equals(user.getIsHide())) {
+                throw new RuntimeException("Tài khoản đã bị khóa, vui lòng liên hệ admin!");
+            }
+
+            // Kiểm tra mật khẩu
             if (user.getPassword().equals(loginRequest.getPassword())) {
-                return new UserRespone(user.getId(), user.getUsername(), user.getRole().getRole_name());
-
+                return new UserRespone(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getRole().getRole_name()
+                );
             }
         }
         return null; // Đăng nhập thất bại
-
     }
+
 
     @Autowired
     private RoleRepository roleRepository;

@@ -1,5 +1,6 @@
 package com.example.library_management_service.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     @JsonManagedReference
+    @JsonIgnore
     private Set<Book> books = new HashSet<>();
 }
 

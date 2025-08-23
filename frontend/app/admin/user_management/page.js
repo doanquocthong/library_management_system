@@ -9,12 +9,10 @@ export default function UserManagementPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // state quản lý dialog confirm
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [message, setMessage] = useState(""); // ✅ thêm message để hiển thị kết quả
-  const [status, setStatus] = useState("idle"); // thay vì useState<"idle" | "success" | "error">
-
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("idle");
 
   const fetchUsers = async () => {
     try {
@@ -39,34 +37,38 @@ export default function UserManagementPage() {
     fetchUsers();
   }, []);
 
-  const handleDelete = async (id) => {
+  // gọi API hide/unhide
+  const handleToggleHide = async (user) => {
     try {
-      const res = await fetch(`${API_URL}/users/${id}`, {
-        method: "DELETE",
+      const action = user.isHide ? "unhide" : "hide";
+      const res = await fetch(`${API_URL}/users/${user.userId}/${action}`, {
+        method: "PUT",
         headers: {
           "ngrok-skip-browser-warning": "true",
         },
       });
+        console.log(user)
 
-      if (res.status === 204 || res.ok) {
+      if (res.ok) {
         setStatus("success");
-        setMessage("✅ Xóa thành công!");
+        setMessage(
+          user.isHide
+            ? `✅ Đã bỏ chặn user ${user.userName}`
+            : `✅ Đã chặn user ${user.userName}`
+        );
         fetchUsers();
       } else if (res.status === 404) {
         setStatus("error");
         setMessage("❌ Không tìm thấy người dùng!");
-      } else if (res.status === 400) {
+      } else {
         const msg = await res.text();
         setStatus("error");
-        setMessage(msg || "❌ Không thể xóa người dùng này!");
-      } else {
-        setStatus("error");
-        setMessage("❌ Người dùng vẫn còn đang hoạt động và có sách đang mượn");
+        setMessage(msg || "❌ Có lỗi xảy ra!");
       }
     } catch (err) {
-      console.error("Error deleting user:", err);
+      console.error("Error toggle hide/unhide:", err);
       setStatus("error");
-      setMessage("❌ Có lỗi mạng khi xóa người dùng!");
+      setMessage("❌ Lỗi mạng!");
     }
   };
 
@@ -91,12 +93,13 @@ export default function UserManagementPage() {
                   <th className="p-2 border">Địa chỉ</th>
                   <th className="p-2 border">Liên hệ</th>
                   <th className="p-2 border">Ngày tạo</th>
+                  <th className="p-2 border">Trạng thái</th>
                   <th className="p-2 border">Hành động</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user.userId} className="hover:bg-gray-50">
                     <td className="p-2 border">{user.userName}</td>
                     <td className="p-2 border">{user.roleName}</td>
                     <td className="p-2 border">{user.mssv}</td>
@@ -105,21 +108,32 @@ export default function UserManagementPage() {
                     <td className="p-2 border">{user.contact}</td>
                     <td className="p-2 border">
                       {user.createdDate
-                        ? new Date(user.createdDate).toLocaleString()
+                        ? new Date(user.createdDate).toLocaleDateString()
                         : ""}
+                    </td>
+                    <td className="p-2 border text-center">
+                      {user.isHide ? (
+                        <span className="text-red-500 font-semibold">Đang bị chặn</span>
+                      ) : (
+                        <span className="text-green-600 font-semibold">Hoạt động</span>
+                      )}
                     </td>
                     <td className="p-2 border">
                       <div className="flex justify-center">
                         <button
-                          className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 w-20"
+                          className={`px-2 py-1 rounded w-24 ${
+                            user.isHide
+                              ? "bg-green-500 hover:bg-green-600"
+                              : "bg-red-500 hover:bg-red-600"
+                          } text-white`}
                           onClick={() => {
-                            setSelectedUserId(user.userId);
-                            setMessage(""); // reset message
+                            setSelectedUser(user);
+                            setMessage("");
                             setStatus("idle");
                             setConfirmOpen(true);
                           }}
                         >
-                          Xóa
+                          {user.isHide ? "Bỏ chặn" : "Chặn"}
                         </button>
                       </div>
                     </td>
@@ -131,15 +145,18 @@ export default function UserManagementPage() {
         )}
 
         {/* Dialog confirm */}
-        {confirmOpen && (
+        {confirmOpen && selectedUser && (
           <div className="fixed inset-0 flex items-center justify-center bg-white/30 backdrop-blur-sm">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96 text-center">
-              <h2 className="text-xl font-bold mb-4">Xác nhận xóa</h2>
+              <h2 className="text-xl font-bold mb-4">Xác nhận</h2>
 
-              {/* Nếu chưa có message thì hiển thị confirm */}
               {status === "idle" && (
                 <>
-                  <p className="mb-6">Bạn có chắc chắn muốn xóa người dùng này?</p>
+                  <p className="mb-6">
+                    {selectedUser.isHide
+                      ? "Bạn có chắc chắn muốn bỏ chặn người dùng này?"
+                      : "Bạn có chắc chắn muốn chặn người dùng này?"}
+                  </p>
                   <div className="flex justify-center gap-4">
                     <button
                       className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
@@ -148,16 +165,19 @@ export default function UserManagementPage() {
                       Hủy
                     </button>
                     <button
-                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                      onClick={() => handleDelete(selectedUserId)}
+                      className={`px-4 py-2 text-white rounded ${
+                        selectedUser.isHide
+                          ? "bg-green-500 hover:bg-green-600"
+                          : "bg-red-500 hover:bg-red-600"
+                      }`}
+                      onClick={() => handleToggleHide(selectedUser)}
                     >
-                      Xóa
+                      {selectedUser.isHide ? "Bỏ chặn" : "Chặn"}
                     </button>
                   </div>
                 </>
               )}
 
-              {/* Nếu đã có message thì hiển thị thông báo */}
               {status !== "idle" && (
                 <>
                   <p

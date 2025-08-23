@@ -9,6 +9,8 @@ export function CategoryMenu() {
     'Kiến thức - Học thuật',
     'Phiêu lưu',
     'Tâm Lý – Kỹ Năng Sống',
+    'Tiểu Thuyết – Văn Học',
+    'Truyện Kiếm Hiệp'
   ];
 
   const [selectedCategory, setSelectedCategory] = useState(null);

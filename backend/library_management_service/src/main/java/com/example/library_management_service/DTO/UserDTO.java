@@ -16,4 +16,5 @@ public class UserDTO {
     private String contact;
     private LocalDateTime createdDate;
     private String email;
+    private Boolean isHide;
 }

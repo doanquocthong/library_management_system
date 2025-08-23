@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BookOpen, Calendar, Clock, CheckCircle, AlertCircle, Eye } from 'lucide-react';
+import { BookOpen, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { API_URL } from "../../config";
+
 export default function RentalHistory() {
   const [rentalData, setRentalData] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -14,32 +15,57 @@ export default function RentalHistory() {
     userId = parsedUser.id;
     console.log("userId:", userId);
   }
+
+  // Fetch lịch sử mượn
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch(`${API_URL}/borrow-details/${userId}`, {
           method: 'GET',
-                headers: { 
-                  'Content-Type': 'application/json', 
-                  "ngrok-skip-browser-warning": "true",
-                },
+          headers: { 
+            'Content-Type': 'application/json',
+            "ngrok-skip-browser-warning": "true",
+          },
         });
         if (!res.ok) throw new Error('Fetch failed');
         const data = await res.json();
-        setRentalData(Array.isArray(data) ? data : [data]); // phòng trường hợp API trả 1 object
+        setRentalData(Array.isArray(data) ? data : [data]);
       } catch (err) {
         console.error('Error fetching rental history:', err);
       }
     };
     fetchData();
-  }, []);
+  }, [userId]);
+
+  // Gọi API trả sách
+  const handleReturnBook = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/borrow-details/${id}/return`, {
+        method: 'PUT', // hoặc 'PUT' tùy backend
+        headers: { 
+          'Content-Type': 'application/json',
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+      if (!res.ok) throw new Error('Return failed');
+      
+      // Cập nhật lại UI
+      setRentalData(prev =>
+        prev.map(item =>
+          item.id === id ? { ...item, status: 'RETURNED' } : item
+        )
+      );
+    } catch (err) {
+      console.error('Error returning book:', err);
+    }
+  };
 
   const getStatusInfo = (status) => {
     switch (status) {
       case 'RETURNED':
         return { label: 'Đã trả', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle };
       case 'BORROWED':
-        return { label: 'Đang mượn', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle };
+        return { label: 'Đang mượn', color: 'text-orange-600', bg: 'bg-orange-50', icon: Clock };
       case 'PENDING':
         return { label: 'Chờ phê duyệt', color: 'text-blue-600', bg: 'bg-blue-50', icon: Clock };
       case 'OVERDUE':
@@ -97,8 +123,7 @@ export default function RentalHistory() {
             <p className="text-gray-500">
               {filter === 'all' 
                 ? 'Bạn chưa mượn sách nào từ thư viện' 
-                : `Không có sách nào trong danh mục "${filter}"`
-              }
+                : `Không có sách nào trong danh mục "${filter}"`}
             </p>
           </div>
         ) : (
@@ -142,7 +167,7 @@ export default function RentalHistory() {
                         </div>
                       </div>
 
-                      {/* Status */}
+                      {/* Status + Return Button */}
                       <div className="flex items-center space-x-3">
                         <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${statusInfo.bg}`}>
                           <StatusIcon size={14} className={statusInfo.color} />
@@ -150,11 +175,15 @@ export default function RentalHistory() {
                             {statusInfo.label}
                           </span>
                         </div>
-                        
-                        {/* <button className="flex items-center space-x-1 text-orange-600 hover:text-orange-700 text-sm font-medium">
-                          <Eye size={14} />
-                          <span>Chi tiết</span>
-                        </button> */}
+
+                        {rental.status === 'BORROWED' && (
+                          <button
+                            onClick={() => handleReturnBook(rental.id)}
+                            className="px-3 py-1 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700"
+                          >
+                            Trả sách
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

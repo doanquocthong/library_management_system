@@ -41,7 +41,7 @@ public class BorrowDetailController {
     //Lấy list tất cả đơn mượn sách
     @GetMapping
     public List<BorrowDetailResponseDTO> getAllBorrowDetails() {
-        return borrowDetailService.getAllBorrowDetais();
+        return borrowDetailService.getAllBorrowDetails();
     }
     //Lấy list sách đã mượn từ người dùng theo id người dùng
     @GetMapping("/{userId}")
@@ -55,4 +55,9 @@ public class BorrowDetailController {
         return ResponseEntity.ok(dto);
     }
 
+    @PutMapping("/{id}/return")
+    public ResponseEntity<BorrowDetailResponseDTO> returnBorrowDetail(@PathVariable Long id) {
+        BorrowDetailResponseDTO dto = borrowDetailService.returnBorrowDetail(id);
+        return ResponseEntity.ok(dto);
+    }
 }
