@@ -6,7 +6,7 @@ import { Footer } from '@/components/home/Footer';
 import { Star, BookOpen, Heart, Calendar, User, Tag } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { API_URL } from "../../../config";
-import BorrowForm from '@/components/BorrowForm'; // added import
+import BorrowForm from '@/components/BorrowForm';
 
 export default function BookDetailPage() {
   const params = useParams();
@@ -14,15 +14,16 @@ export default function BookDetailPage() {
   const id = params?.id;
 
   const [isLiked, setIsLiked] = useState(false);
-  const [rating, setRating] = useState(4.5); // still a UI state (API chưa trả)
+  const [rating, setRating] = useState(4.5); 
   const [userRating, setUserRating] = useState(0);
-  const [showReviewForm, setShowReviewForm] = useState(false);
   const [review, setReview] = useState('');
+  const [showReviewForm, setShowReviewForm] = useState(false);
+
   const [book, setBook] = useState(null);
+  const [reviews, setReviews] = useState([]); // ✅ danh sách review
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // new state to control borrow form modal
   const [borrowOpen, setBorrowOpen] = useState(false);
 
   useEffect(() => {
@@ -34,30 +35,40 @@ export default function BookDetailPage() {
       setError(null);
       try {
         const res = await fetch(`${API_URL}/books/${id}`, {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json', 
-          "ngrok-skip-browser-warning": "true",
-        },
-        // body: JSON.stringify(form),
-      });
+          method: 'GET',
+          headers: { 
+            'Content-Type': 'application/json',
+            "ngrok-skip-browser-warning": "true",
+          }
+        });
         if (!res.ok) throw new Error(`Lỗi khi tải sách: ${res.status}`);
         const data = await res.json();
-        console.log('📚 Book API response:', data);
         if (mounted) setBook(data);
       } catch (err) {
-        console.error(err);
         if (mounted) setError(err.message || 'Lỗi không xác định');
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
-    fetchBook();
-
-    return () => {
-      mounted = false;
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`${API_URL}/reviews/${id}`, {
+          headers: { "ngrok-skip-browser-warning": "true" }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (mounted) setReviews(data);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải review:", err);
+      }
     };
+
+    fetchBook();
+    fetchReviews();
+
+    return () => { mounted = false; };
   }, [id]);
 
   const formatPrice = (p) => {
@@ -66,7 +77,6 @@ export default function BookDetailPage() {
     return isNaN(n) ? `${p} đ` : `${n.toLocaleString('vi-VN')} đ`;
   };
 
-  // open modal instead of directly sending request
   const handleBorrow = () => {
     const userId = user?.id || localStorage.getItem('userId');
     if (!userId) {
@@ -79,19 +89,39 @@ export default function BookDetailPage() {
     }
     setBorrowOpen(true);
   };
-  const handleSubmitReview = () => {
+
+  const handleSubmitReview = async () => {
     if (!user) {
       alert('Vui lòng đăng nhập để đánh giá!');
       return;
     }
-    if (userRating === 0) {
-      alert('Vui lòng chọn số sao!');
+    if (!review.trim()) {
+      alert('Vui lòng nhập nội dung đánh giá!');
       return;
     }
-    alert('Cảm ơn bạn đã đánh giá!');
-    setShowReviewForm(false);
-    setReview('');
-    setUserRating(0);
+
+    try {
+      const res = await fetch(`${API_URL}/reviews/user/${user.id}/book/${book.id}`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: user.username,
+          bookname: book.bookName,
+          comment: review,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Lỗi khi gửi review");
+
+      const newReview = await res.json();
+      setReviews((prev) => [...prev, newReview]);
+      setReview('');
+      setShowReviewForm(false);
+      alert("Cảm ơn bạn đã đánh giá!");
+    } catch (err) {
+      alert("Không thể gửi review");
+      console.error(err);
+    }
   };
 
   if (loading) {
@@ -133,19 +163,12 @@ export default function BookDetailPage() {
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
-        <nav className="text-sm text-gray-500 mb-6">
-          <span>Trang chủ</span>
-          <span className="mx-2">/</span>
-          <span>Sách</span>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900">{book.bookName}</span>
-        </nav>
-
-        {/* Book detail */}
+        
+        {/* ===================== BOOK DETAIL ===================== */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Image */}
+            
+            {/* Hình ảnh */}
             <div className="lg:col-span-1">
               <div className="relative">
                 <img
@@ -157,7 +180,6 @@ export default function BookDetailPage() {
                   <button
                     onClick={() => setIsLiked(!isLiked)}
                     className={`p-2 rounded-full ${isLiked ? 'bg-red-500 text-white' : 'bg-white text-gray-500'} shadow-md hover:scale-110 transition`}
-                    aria-label="like"
                   >
                     <Heart size={20} fill={isLiked ? 'currentColor' : 'none'} />
                   </button>
@@ -165,15 +187,14 @@ export default function BookDetailPage() {
               </div>
             </div>
 
-            {/* Info */}
+            {/* Thông tin sách */}
             <div className="lg:col-span-2">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">{book.bookName}</h1>
                   <p className="text-lg text-gray-600 mb-1">Tác giả: {book.author}</p>
                   <p className="text-sm text-gray-500">Mã sách: #{book.id}</p>
-</div>
-
+                </div>
                 <div className="text-right">
                   <div className="text-2xl font-semibold text-indigo-700">{formatPrice(book.price)}</div>
                   {book.isPopular && (
@@ -184,7 +205,7 @@ export default function BookDetailPage() {
                 </div>
               </div>
 
-              {/* rating (UI only) */}
+              {/* Rating UI */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex items-center">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -197,7 +218,7 @@ export default function BookDetailPage() {
                 </div>
               </div>
 
-              {/* metadata */}
+              {/* Metadata */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center gap-2">
                   <Tag size={16} className="text-gray-500" />
@@ -209,7 +230,7 @@ export default function BookDetailPage() {
                 </div>
               </div>
 
-              {/* actions */}
+              {/* Trạng thái */}
               <div className="bg-gray-50 p-4 rounded-lg mb-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -227,6 +248,8 @@ export default function BookDetailPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Nút mượn sách */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleBorrow}
@@ -240,18 +263,85 @@ export default function BookDetailPage() {
           </div>
         </div>
 
-        {/* description */}
+        {/* ===================== MÔ TẢ ===================== */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Mô tả</h2>
           <div className="prose max-w-none">
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">{book.description}</p>
           </div>
         </div>
+
+        {/* ===================== REVIEWS ===================== */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Đánh giá</h2>
+
+          {reviews.length === 0 ? (
+            <p className="text-gray-600">Chưa có đánh giá nào cho sách này.</p>
+          ) : (
+            <div className="space-y-4">
+              {reviews.map((r) => {
+                const isOwner = user && r.userId === user.id; // ✅ kiểm tra user hiện tại có phải chủ bài review không
+                return (
+                  <div key={r.id} className="border-b pb-3">
+                    <p className="font-semibold text-gray-800 flex items-center gap-2">
+                      <User size={16} /> {r.userName}
+                      {isOwner && (
+                        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-600 rounded">
+                          Bài của bạn
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-gray-600">{r.comment}</p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(r.reviewDate).toLocaleString("vi-VN")}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Form thêm review */}
+          <div className="mt-6">
+            {showReviewForm ? (
+              <div className="space-y-3">
+                <textarea
+                  value={review}
+                  onChange={(e) => setReview(e.target.value)}
+                  className="w-full border rounded-lg p-2 text-sm"
+                  rows={3}
+                  placeholder="Nhập đánh giá của bạn..."
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSubmitReview}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                  >
+                    Gửi đánh giá
+                  </button>
+                  <button
+                    onClick={() => setShowReviewForm(false)}
+                    className="px-4 py-2 rounded-lg border hover:bg-gray-100"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                Viết đánh giá
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       <Footer />
 
-      {/* Borrow Form Modal */}
+      {/* ===================== Borrow Form Modal ===================== */}
       {borrowOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-black opacity-30" aria-hidden="true"></div>

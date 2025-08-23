@@ -58,9 +58,8 @@ public class BorrowDetailService {
 
         // Gán thông tin liên hệ
         mapContactInfo(borrowDetailDTO, borrowDetail);
-
+        borrowDetail.setDate_borrow_book(LocalDateTime.now());
         BorrowDetail saved = borrowDetailRepository.save(borrowDetail);
-        saved.setDate_borrow_book(LocalDateTime.now());
         return convertToDTO(saved);
     }
     public List<BorrowDetailResponseDTO> getBorrowDetailByID(Long userId) {
@@ -166,6 +165,7 @@ public class BorrowDetailService {
         dto.setEmail(borrowDetail.getEmail());
         dto.setBookImage(borrowDetail.getBook().getBookImage());
         dto.setId(borrowDetail.getId());
+        dto.setDateBorrowBook(borrowDetail.getDate_borrow_book());
         return dto;
     }
 

@@ -11,6 +11,6 @@ public class RegisterRequest {
     private String contact;
     private String address;
     private String email;
-    private String mssv;
+    private String mssv = null;
 //    private Long roleId;
 }

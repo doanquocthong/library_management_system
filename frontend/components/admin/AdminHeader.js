@@ -22,10 +22,7 @@ export function AdminHeader({ title = 'Quản trị hệ thống', subtitle = 'Q
         <p className="text-sm text-gray-600">{subtitle}</p>
       </div>
       <div className="flex items-center gap-4">
-        <div className="relative">
-          <Bell className="w-6 h-6 text-indigo-400" />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">3</span>
-        </div>
+        
         <div className="relative">
           <div
             className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white cursor-pointer hover:ring-2 hover:ring-indigo-300"
