@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
@@ -64,5 +64,11 @@ public class BookController {
         return ResponseEntity.ok(createdBook);
     }
 
+    @PutMapping("/{id}/quantity")
+    public ResponseEntity<BookDTO> updateQuantity(@PathVariable Long id, @RequestParam int quantity) {
+        return bookService.changeQuantity(id, quantity)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
 }

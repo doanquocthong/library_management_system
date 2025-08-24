@@ -38,27 +38,27 @@ export default function RentalHistory() {
   }, [userId]);
 
   // Gọi API trả sách
-  const handleReturnBook = async (id) => {
-    try {
-      const res = await fetch(`${API_URL}/borrow-details/${id}/return`, {
-        method: 'PUT', // hoặc 'PUT' tùy backend
-        headers: { 
-          'Content-Type': 'application/json',
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-      if (!res.ok) throw new Error('Return failed');
+  // const handleReturnBook = async (id) => {
+  //   try {
+  //     const res = await fetch(`${API_URL}/borrow-details/${id}/return`, {
+  //       method: 'PUT', // hoặc 'PUT' tùy backend
+  //       headers: { 
+  //         'Content-Type': 'application/json',
+  //         "ngrok-skip-browser-warning": "true",
+  //       },
+  //     });
+  //     if (!res.ok) throw new Error('Return failed');
       
-      // Cập nhật lại UI
-      setRentalData(prev =>
-        prev.map(item =>
-          item.id === id ? { ...item, status: 'RETURNED' } : item
-        )
-      );
-    } catch (err) {
-      console.error('Error returning book:', err);
-    }
-  };
+  //     // Cập nhật lại UI
+  //     setRentalData(prev =>
+  //       prev.map(item =>
+  //         item.id === id ? { ...item, status: 'RETURNED' } : item
+  //       )
+  //     );
+  //   } catch (err) {
+  //     console.error('Error returning book:', err);
+  //   }
+  // };
 
   const getStatusInfo = (status) => {
     switch (status) {
@@ -176,14 +176,14 @@ export default function RentalHistory() {
                           </span>
                         </div>
 
-                        {rental.status === 'BORROWED' && (
+                        {/* {rental.status === 'BORROWED' && (
                           <button
                             onClick={() => handleReturnBook(rental.id)}
                             className="px-3 py-1 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700"
                           >
                             Trả sách
                           </button>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </div>

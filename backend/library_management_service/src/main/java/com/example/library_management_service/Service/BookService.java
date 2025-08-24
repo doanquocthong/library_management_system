@@ -84,9 +84,17 @@ public class BookService {
         return resultDTO;
     }
 
-
-
-
+    // ✅ Cập nhật số lượng sách
+    public Optional<BookDTO> changeQuantity(Long bookId, int newQuantity) {
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
+            book.setQuantity(newQuantity); // cập nhật số lượng
+            Book savedBook = bookRepository.save(book);
+            return Optional.of(convertToDTO(savedBook));
+        }
+        return Optional.empty();
+    }
 
 
     // Ẩn sách

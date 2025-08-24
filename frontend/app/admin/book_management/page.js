@@ -52,6 +52,31 @@ export default function BookManagementPage() {
       setLoading(false);
     }
   };
+// ✅ Cập nhật số lượng sách
+const handleChangeQuantity = async (bookId, newQuantity) => {
+  try {
+    const res = await fetch(`${API_URL}/books/${bookId}/quantity?quantity=${newQuantity}`, {
+      method: 'PUT',
+      headers: {
+        "Accept": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+    });
+    if (!res.ok) throw new Error("Cập nhật số lượng thất bại");
+    const updatedBook = await res.json();
+
+    setBooks(prev =>
+      prev.map(item =>
+        item.id === updatedBook.id ? { ...item, quantity: updatedBook.quantity } : item
+      )
+    );
+
+    alert("Cập nhật số lượng thành công!");
+  } catch (error) {
+    console.error(error);
+    alert("Cập nhật số lượng thất bại!");
+  }
+};
 
   // Fetch categories
   const fetchCategories = async () => {
@@ -219,7 +244,7 @@ export default function BookManagementPage() {
               placeholder="Số lượng"
               value={newBook.quantity}
               onChange={(e) =>
-                setNewBook({ ...newBook, quantity: e.target.value })
+                setNewBook({ ...newBook, quantity: Number(e.target.value) })
               }
               className="border p-2 rounded"
               required
@@ -292,7 +317,7 @@ export default function BookManagementPage() {
                   <th className="p-2 border">Tác giả</th>
                   <th className="p-2 border">Thể loại</th>
                   <th className="p-2 border text-center w-24">Giá</th>
-                  <th className="p-2 border text-center w-20">SL</th>
+                  <th className="p-2 border text-center w-20">Số lượng</th>
                   <th className="p-2 border text-center w-24">Nổi bật</th>
                   <th className="p-2 border text-center w-28">Trạng thái</th>
                   <th className="p-2 border text-center w-28">Hành động</th>
@@ -314,7 +339,16 @@ export default function BookManagementPage() {
                     <td className="p-2 border text-center">
                       {formatPrice(book.price)}đ
                     </td>
-                    <td className="p-2 border text-center">{book.quantity}</td>
+                    <td className="py-2 px-3 border">
+                    <input
+                      type="number"
+                      min="0"
+                      defaultValue={book.quantity}
+                      onBlur={(e) => handleChangeQuantity(book.id, e.target.value)} 
+                      className="w-20 border rounded px-2 py-1 text-sm"
+                    />
+                  </td>
+
                     <td className="p-2 border text-center">
                       {book.isPopular ? "⭐ Có" : "❌ Không"}
                     </td>

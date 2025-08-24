@@ -6,9 +6,10 @@ import { API_URL } from "../../config";
 export function BookList() {
   const [borrowDetails, setBorrowDetails] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PENDING, BORROWED, RETURNED
-  const [filterDate, setFilterDate] = useState('ALL'); // ALL, TODAY, YESTERDAY, CUSTOM
+  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filterDate, setFilterDate] = useState('ALL');
   const [customDate, setCustomDate] = useState('');
+  const [searchEmail, setSearchEmail] = useState(''); // ✅ thêm state
 
   useEffect(() => {
     async function fetchBorrowDetails() {
@@ -23,9 +24,7 @@ export function BookList() {
         if (!res.ok) throw new Error('Failed to fetch data');
         let data = await res.json();
 
-        // Sắp xếp theo ngày mượn mới nhất trước
         data.sort((a, b) => new Date(b.dateBorrowBook) - new Date(a.dateBorrowBook));
-
         setBorrowDetails(data);
       } catch (error) {
         console.error('Error fetching borrow details:', error);
@@ -38,16 +37,11 @@ export function BookList() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'PENDING':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'BORROWED':
-        return 'bg-green-100 text-green-700';
-      case 'RETURNED':
-        return 'bg-blue-100 text-blue-700';
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+      case 'PENDING': return 'bg-yellow-100 text-yellow-700';
+      case 'BORROWED': return 'bg-green-100 text-green-700';
+      case 'RETURNED': return 'bg-blue-100 text-blue-700';
+      case 'CANCELLED': return 'bg-red-100 text-red-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -55,7 +49,7 @@ export function BookList() {
     try {
       const res = await fetch(`${API_URL}/borrow-details/${id}/approve`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',"ngrok-skip-browser-warning": "true", },
       });
       if (!res.ok) throw new Error('Duyệt thất bại');
       const updated = await res.json();
@@ -65,6 +59,23 @@ export function BookList() {
     } catch (error) {
       console.error(error);
       alert('Duyệt thất bại');
+    }
+  };
+
+  const handleReturnBook = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/borrow-details/${id}/return`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json',"ngrok-skip-browser-warning": "true", },
+      });
+      if (!res.ok) throw new Error('Duyệt trả thất bại');
+      const updated = await res.json();
+      setBorrowDetails(prev =>
+        prev.map(item => item.id === updated.id ? updated : item)
+      );
+    } catch (error) {
+      console.error(error);
+      alert('Duyệt trả thất bại');
     }
   };
 
@@ -79,6 +90,8 @@ export function BookList() {
     });
   };
 
+  
+
   const filterByDate = (itemDate) => {
     if (!itemDate) return false;
     const d = new Date(itemDate);
@@ -86,31 +99,31 @@ export function BookList() {
     const yest = new Date();
     yest.setDate(today.getDate() - 1);
 
-    const onlyDate = (dt) => dt.toISOString().split("T")[0]; // yyyy-mm-dd
+    const onlyDate = (dt) => dt.toISOString().split("T")[0];
 
     switch (filterDate) {
-      case "TODAY":
-        return onlyDate(d) === onlyDate(today);
-      case "YESTERDAY":
-        return onlyDate(d) === onlyDate(yest);
-      case "CUSTOM":
-        return customDate && onlyDate(d) === customDate;
-      default:
-        return true;
+      case "TODAY": return onlyDate(d) === onlyDate(today);
+      case "YESTERDAY": return onlyDate(d) === onlyDate(yest);
+      case "CUSTOM": return customDate && onlyDate(d) === customDate;
+      default: return true;
     }
   };
 
   const filteredData = borrowDetails.filter(item => {
     const statusOk = filterStatus === 'ALL' ? true : item.status === filterStatus;
     const dateOk = filterByDate(item.dateBorrowBook);
-    return statusOk && dateOk;
+    const emailOk = searchEmail === '' 
+      ? true 
+      : (item.email || item.userEmail || '').toLowerCase().includes(searchEmail.toLowerCase());
+    return statusOk && dateOk && emailOk;
   });
 
   return (
     <div className="bg-white rounded-xl shadow p-6">
-      {/* Thanh lọc trạng thái + lọc ngày */}
-      <div className="flex items-center justify-between mb-6">
-        {/* Lọc trạng thái (trái) */}
+      {/* Thanh lọc trạng thái + lọc ngày + tìm kiếm */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-3">
+        
+        {/* Lọc trạng thái */}
         <div className="flex space-x-3">
           {['ALL','PENDING','BORROWED','RETURNED'].map(status => (
             <button
@@ -130,7 +143,18 @@ export function BookList() {
           ))}
         </div>
 
-        {/* Lọc ngày (phải) */}
+        {/* Ô tìm kiếm email */}
+        <div className="flex items-center">
+          <input
+            type="text"
+            placeholder="Tìm theo email..."
+            value={searchEmail}
+            onChange={(e) => setSearchEmail(e.target.value)}
+            className="border px-3 py-2 rounded-lg text-sm w-64"
+          />
+        </div>
+
+        {/* Lọc ngày */}
         <div className="flex space-x-3 items-center">
           <button
             onClick={() => setFilterDate("TODAY")}
@@ -200,6 +224,13 @@ export function BookList() {
                       onClick={() => handleApprove(item.id)}
                     >
                       Duyệt
+                    </button>
+                  )}
+                  {item.status === 'BORROWED' && (
+                    <button
+                      onClick={() => handleReturnBook(item.id)}
+                      className="whitespace-nowrap px-3 py-1 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700"
+                    > Trả sách
                     </button>
                   )}
                 </td>
