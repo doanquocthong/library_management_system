@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Footer } from "@/components/home/Footer";
+import { API_URL } from "../../config";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -14,11 +15,47 @@ export default function ContactPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("📩 Form gửi:", formData);
-    alert("Cảm ơn bạn đã liên hệ!");
+
+    try {
+      // 🔑 Lấy userId từ localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      const userId = user.id;
+      if (!userId) {
+        alert("❌ Bạn cần đăng nhập trước khi gửi liên hệ.");
+        console.log(userId)
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/supports`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify({
+          fullName: formData.name,
+          email: formData.email,
+          title: formData.subject,
+          content: formData.message,
+          userId: parseInt(userId, 10), // ép về số
+        }),
+      });
+
+      if (response.ok) {
+        alert("📩 Gửi thành công!");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        const error = await response.text();
+        alert("❌ Gửi thất bại: " + error);
+      }
+    } catch (err) {
+      console.error("Lỗi khi gọi API:", err);
+      alert("❌ Không thể kết nối đến server.");
+    }
   };
+
 
   return (
     <div className="bg-white flex flex-col min-h-screen">
@@ -47,15 +84,15 @@ export default function ContactPage() {
             <div className="space-y-6 text-gray-700">
               <div>
                 <p className="font-semibold">ĐỊA CHỈ</p>
-                <p>02 Võ Oanh, Thạnh Lộc, Mỹ Tây, Hồ Chí Minh, Việt Nam</p> 
+                <p>02 Võ Oanh, Thạnh Lộc, Mỹ Tây, Hồ Chí Minh, Việt Nam</p>
               </div>
               <div>
                 <p className="font-semibold">E-MAIL</p>
-                <p className="text-teal-600">lic@ut.edu.vn</p>
+                <p className="text-teal-600">thongdoan742@gmail.com</p>
               </div>
               <div>
                 <p className="font-semibold">PHONE</p>
-                <p>(028) 35.126.169</p>
+                <p>094 594 6668</p>
               </div>
             </div>
           </div>
