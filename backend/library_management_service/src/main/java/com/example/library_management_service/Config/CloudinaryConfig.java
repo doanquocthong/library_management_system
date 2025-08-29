@@ -1,4 +1,4 @@
-package com.example.library_management_service;
+package com.example.library_management_service.Config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

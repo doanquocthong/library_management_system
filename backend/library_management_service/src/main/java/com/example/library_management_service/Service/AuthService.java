@@ -9,6 +9,7 @@ import com.example.library_management_service.Entity.UserDetail;
 import com.example.library_management_service.Repository.RoleRepository;
 import com.example.library_management_service.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,9 @@ import java.util.Optional;
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public UserRespone login(LoginRequest loginRequest) {
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
@@ -28,8 +32,8 @@ public class AuthService {
                 throw new RuntimeException("Tài khoản đã bị khóa, vui lòng liên hệ admin!");
             }
 
-            // Kiểm tra mật khẩu
-            if (user.getPassword().equals(loginRequest.getPassword())) {
+            // Kiểm tra mật khẩu (hash)
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 return new UserRespone(
                         user.getId(),
                         user.getUsername(),
@@ -54,7 +58,8 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         User user = new User();
         user.setUsername(registerRequest.getUsername());
-        user.setPassword(registerRequest.getPassword());
+    // Lưu password đã mã hóa
+    user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setRole(role);              // 👉 gán Role object
         user.setCreated_date(LocalDateTime.now());
         user.setIsHide(false);
